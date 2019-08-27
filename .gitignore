@@ -1,0 +1,11 @@
+.git/
+.idea/
+venv/
+__pycache__
+blog/__pycache__
+myblogapp/__pycache__
+users/__pycache__
+db.sqlite3
+test.py
+posts.json
+media/

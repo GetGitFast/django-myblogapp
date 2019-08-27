@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Blog Web Application in Python/Django framework">
+    <meta name="keywords" content="Web Blog, Blog, Python, Django, Articles, Posts">
+    <meta name="author" content="Anil Dhar">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- Load and link custom css file -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'blog/main.css' %}">
+
+
+    {% if title %}
+        <title>MyBlogApp | {{ title}}</title>
+    {% else %}
+         <title>MyBlogApp</title>
+    {% endif %}
+</head>
+<body>
+    <!-- Header navbar -->
+    <header class="site-header">
+      <nav class="navbar navbar-expand-md navbar-dark bg-limed-spruce fixed-top">
+        <div class="container">
+          <a class="navbar-brand mr-4" href="{% url 'blog-home' %}">MyBlogApp</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarToggle">
+            <div class="navbar-nav mr-auto">
+              <!-- {% url 'blog-home' %} etc. coming from the blog app urls.py. This is a good practice. Any change
+                   needed will happen only in the urls.py-->
+              <a class="nav-item nav-link" href="{% url 'blog-home' %}">Home</a>
+              <a class="nav-item nav-link" href="{% url 'blog-about' %}">About</a>
+              <a class="nav-item nav-link" href="{% url 'blog-technology' %}">Technology Stack</a>
+              <a class="nav-item nav-link" href="{% url 'blog-knowledge' %}">Knowledge Centre</a>
+              <a class="nav-item nav-link" href="{% url 'blog-oksana' %}">MyBook</a>
+            </div>
+            <!-- Navbar Right Side -->
+            <div class="navbar-nav">
+              {% if user.is_authenticated %}
+                <a class="nav-item nav-link" href="{% url 'post-create' %}">New Post</a>
+                <a class="nav-item nav-link" href="{% url 'profile' %}">Profile</a>
+                {% if user.is_superuser %}
+                    <a class="nav-item nav-link" href="{% url 'admin:index' %}" target="_blank">Django-Admin</a>
+                {% endif %}
+                <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
+              {% else %}
+                <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
+                <a class="nav-item nav-link" href="{% url 'register' %}">Register</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <!-- Header navbar ends -->
+
+    <!-- Main body block -->
+    <main role="main" class="container">
+      <div class="row">
+        <div class="col-md-8">
+
+            <!-- Flash messages -->
+           {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }}"> <!-- i.e. alert-success, alert-info, alert-danger etc -->
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+          <!-- Flash messages end-->
+
+          <!-- Block content to used for all html pages which will inherit this (base.html) page -->
+          {% block content %}{% endblock %}
+          <!-- Block content ends -->
+
+        </div>
+        <div class="col-md-4">
+          <div class="content-section">
+              <h3><center>Sidebar</center></h3>
+            <p class='text-muted'>Here you can search posts, send emails, view latest posts & announcements, and much more...
+              <ul class="list-group">
+                <li class="list-group-item list-group-item-light">
+                      <form method="GET"  action="{% url 'search-posts' %}">
+                        <input type="text" name="q" value="{{request.GET.q}}" placeholder="Search posts"/>
+                        <input type="submit" name="submit" value="Search"/>
+
+                     </form>
+                </li>
+
+                <li class="list-group-item list-group-item-light"><a href="mailto:anil.dhar@live.com"><img src="https://ad-django-webblogapp.s3-ap-southeast-2.amazonaws.com/images/email.jpg"  alt="" style="width: 25px; margin-right: 10px;">Send email</a></li>
+                <li class="list-group-item list-group-item-light"><a href="{% url 'recent-posts' %}"><img src="https://ad-django-webblogapp.s3-ap-southeast-2.amazonaws.com/images/blogs.jpg"  alt="" style="width: 25px; margin-right: 10px;">Latest posts</a></li>
+                <li class="list-group-item list-group-item-light"><a href="{% url 'blog-announcements' %}"><img src="https://ad-django-webblogapp.s3-ap-southeast-2.amazonaws.com/images/announcement1.png"  alt="Submit" style="width: 25px; margin-right: 10px;">Announcements</a></li>
+                <li class="list-group-item list-group-item-light"><a href="{% url 'blog-oksana' %}"><img src="https://ad-django-webblogapp.s3-ap-southeast-2.amazonaws.com/images/oksana1.jpg"  alt="Submit" style="width: 25px; margin-right: 10px;">Oksana</a></li>
+
+                <li class="list-group-item list-group-item-light">
+                      <form method="GET"  action="{% url 'blog-weather' %}">
+                        <input type="text" name="q1" value="{{request.GET.q1}}" placeholder="Enter city"/>
+                        <input type="submit" name="submit" value="Weather"/>
+
+                     </form>
+                </li>
+                <li class="list-group-item list-group-item-light"><img src="https://ad-django-webblogapp.s3-ap-southeast-2.amazonaws.com/images/map.png"  alt="" style="width: 25px; margin-right: 10px;">Maps <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d13275.142085265119!2d150.9656457!3d-33.71449835!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m3!3e0!4m0!4m0!5e0!3m2!1sen!2sau!4v1566364045688!5m2!1sen!2sau" width="265" height="150" frameborder="0" style="border:0" allowfullscreen></iframe></li>
+              </ul>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block content1 to used for Technology & Knowledge Centre pages which will inherit this (base.html) page -->
+      {% block content1 %}{% endblock %}
+       <!-- Block content1 ends -->
+
+    </main>
+    <!-- Main body block ends -->
+
+     <Footer class="site-footer">
+      <nav class="navbar navbar-expand-md navbar-dark bg-cinnabar fixed-bottom">
+        <div class="container">
+            <p> MyBlogApp &copy Anil Dhar, 2019 </p>
+        </div>
+      </nav>
+    </Footer>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</html>
