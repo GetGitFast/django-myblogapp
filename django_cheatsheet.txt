@@ -554,6 +554,10 @@ NOTE FOR DEPLOYMENT IN HERUKO for main.css and ckeditor
               DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     2.5. Comment out def save(self, *args, **kwargs): in users\models.py
 
+
+Heroku Migration
+================
+https://www.youtube.com/watch?v=6DI_7Zja8Zc&list=PL-osiE80TeTtoQCKZ03TU5fNfx2UY6U4p&index=17
 Creating SECRET KEY
 
 1. Go to Python shell
