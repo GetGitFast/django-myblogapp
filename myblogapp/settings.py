@@ -28,7 +28,6 @@ DEBUG = (os.envronment.get('DEBUG_VALUE') == 'True')
 
 ALLOWED_HOSTS = ['myawesomeblogapp.herokuapp.com']
 
-
 # Application definition
 
 INSTALLED_APPS = [
