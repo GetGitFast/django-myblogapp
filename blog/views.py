@@ -13,7 +13,7 @@ from django.views.generic import (
 )
 from .models import Post  # .models indicates same directory and from the models file in the current package
 from .models import Announcement
-from django.conf import settings
+import os
 from .models import City
 
 
@@ -69,13 +69,14 @@ def oksana(request):
 
 
 def weather(request):
-    url = 'http://api.openweathermap.org/data/2.5/weather?q={}&units=metric&appid='+settings.OWM_API.strip()
+    url = 'http://api.openweathermap.org/data/2.5/weather?q={}&units=metric&appid=' +\
+          str(os.environ.get('OWM_API')).strip()
 
     if request.method == 'GET':
         search_key = request.GET.get('q1')
 
     if not search_key:
-        search_key = settings.DEFAULT_CITY
+        search_key = os.environ.get('DEFAULT_CITY')
 
     try:
         cities = City.objects.filter(Q(name__icontains=search_key)).order_by('name')
