@@ -565,7 +565,7 @@ Creating SECRET KEY
 3. secrets.token_hex(24) _ Will generate 24 Byte Secret key
 
 heroku config:set SECRET_KEY=""
-heroku config:set DEBUG_VALUE="True"
+heroku config:set DEBUG_VALUE="False" (DON'T SET THIS VARIABLE IN Heroku i.e. production env)
 
 heroku config:set AWS_ACCESS_KEY_ID=""
 heroku config:set AWS_SECRET_ACCESS_KEY=""
