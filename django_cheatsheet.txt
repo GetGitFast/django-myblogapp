@@ -554,6 +554,29 @@ NOTE FOR DEPLOYMENT IN HERUKO for main.css and ckeditor
               DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     2.5. Comment out def save(self, *args, **kwargs): in users\models.py
 
+Creating SECRET KEY
+
+1. Go to Python shell
+2. Import secrets
+3. secrets.token_hex(24) _ Will generate 24 Byte Secret key
+
+heroku config:set SECRET_KEY="d9dce67596bc6ce0cf349b5725849f09d0b0896b391c7360"
+heroku config:set DEBUG_VALUE="True"
+
+heroku config:set AWS_ACCESS_KEY_ID="AKIAVM2Y7MAPQSIFNM2M"
+heroku config:set AWS_SECRET_ACCESS_KEY="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"
+heroku config:set AWS_STORAGE_BUCKET_NAME="ad-django-webblogapp"
+
+heroku config:set EMAIL_HOST="smtp.googlemail.com"
+heroku config:set EMAIL_USER="37kirkwall@gmail.com"
+heroku config:set EMAIL_PASS="kirkwall37"
+
+heroku config:set DEFAULT_CITY="Sydney"
+heroku config:set OWM_API="fd544b1b7275898c4aff9c0c79eba983"
+
+
+
+
 
 
 
