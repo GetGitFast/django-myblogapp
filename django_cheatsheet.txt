@@ -564,19 +564,42 @@ Creating SECRET KEY
 2. Import secrets
 3. secrets.token_hex(24) _ Will generate 24 Byte Secret key
 
-heroku config:set SECRET_KEY="d9dce67596bc6ce0cf349b5725849f09d0b0896b391c7360"
+heroku config:set SECRET_KEY=""
 heroku config:set DEBUG_VALUE="True"
 
-heroku config:set AWS_ACCESS_KEY_ID="AKIAVM2Y7MAPQSIFNM2M"
-heroku config:set AWS_SECRET_ACCESS_KEY="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"
-heroku config:set AWS_STORAGE_BUCKET_NAME="ad-django-webblogapp"
+heroku config:set AWS_ACCESS_KEY_ID=""
+heroku config:set AWS_SECRET_ACCESS_KEY=""
+heroku config:set AWS_STORAGE_BUCKET_NAME=""
 
-heroku config:set EMAIL_HOST="smtp.googlemail.com"
-heroku config:set EMAIL_USER="37kirkwall@gmail.com"
-heroku config:set EMAIL_PASS="kirkwall37"
+heroku config:set EMAIL_HOST=""
+heroku config:set EMAIL_USER=""
+heroku config:set EMAIL_PASS=""
 
 heroku config:set DEFAULT_CITY="Sydney"
-heroku config:set OWM_API="fd544b1b7275898c4aff9c0c79eba983"
+heroku config:set OWM_API=""
+
+Commands
+=========
+1 "heroku login" from Widows command line
+2. "heroku open" to launch website from Git Bash terminal from app root dir
+
+Committing changes (from Git Bash terminal from web root dir)
+
+1.  git status
+2. git add -A
+3. git commit -m
+4. git push heroku master
+
+Running Python from Git Bash
+
+#1. heroku run python manage.py [createsuperuser | migrate etc]
+
+#2. Go to "heroku run bash" and run python straigt
+
+
+
+
+
 
 
 
