@@ -5,11 +5,11 @@
 /*  color: #333333; */
   margin-top: 5rem;
   padding-top: 20px;
-  font-family: 'IM Fell English', serif;
-   /*font-family: 'Monoton', cursive;
+  /*
+  font-family: 'Monoton', cursive;
   font-family: 'Marck Script', cursive;
-  font-family: 'IM Fell English', serif;
-  font-family: 'Philosopher', sans-serif; */
+  font-family: 'IM Fell English', serif; */
+  font-family: 'Philosopher', sans-serif;
 
 }
 
@@ -83,7 +83,8 @@ ul li .fimg{
 .site-footer p{
    margin-left:auto;
    margin-right:auto;
-   margin-top:1em;
+   margin-top: 0.4em;
+   margin-bottom: 0.4em;
    color:#35424a;
    font-weight: 600;
  }
