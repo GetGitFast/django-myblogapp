@@ -18,10 +18,12 @@ Startup steps
 
 7. python manage.py runserver  (Will start server)
 
-6. In Django we can create muutiple apps with an projects. It has multiple benefits like isolating apps and also
+6. In Django we can create multiple apps with an projects. It has multiple benefits like isolating apps and also
    moving them around one project to another. Run the following command from the manage.py folder-
 
    python manage.py startapp blog
+
+7. python manage.py createsuperuser (For admin)
 
 
 Building blog app (refer myblogapp Webapp project) app
