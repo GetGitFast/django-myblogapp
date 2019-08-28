@@ -528,6 +528,7 @@ NOTE FOR DEPLOYMENT IN HERUKO for main.css and ckeditor
     1.3. Renamed myblogapp\blog\static\blog\main.css as main_old.css
 
 2. AWS S3 Bucket -
+    https://www.youtube.com/watch?v=kt3ZtW9MXhw&list=PL-osiE80TeTtoQCKZ03TU5fNfx2UY6U4p&index=16
 
     2.1 -
     Email - anil.dhar@live.com
@@ -598,6 +599,7 @@ Running Python from Git Bash
 
 
 Website - https://myawesomeblogapp.herokuapp.com/
+Heroku Dashboard - https://dashboard.heroku.com/apps/myawesomeblogapp/settings
 
 
 
