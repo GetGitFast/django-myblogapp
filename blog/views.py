@@ -69,6 +69,9 @@ def oksana(request):
 
 
 def weather(request):
+    """ Gets weather report for a selected city that is found in the City table. Otherwise, it will take the city
+    from DEFAULT_CITY environment variable-currently set to 'Sydney'. The City table needs have atleast 'Sydney',
+    or else the website would go in a spin."""
     url = 'http://api.openweathermap.org/data/2.5/weather?q={}&units=metric&appid='+settings.OWM_API.strip()
 
     if request.method == 'GET':
@@ -83,6 +86,7 @@ def weather(request):
         messages.warning(request, f'Your city not found. Showing default city')
         return redirect('blog-weather')
 
+    print(f"cities : {cities}")
     weather_data = []
     for city in cities:
         try:
