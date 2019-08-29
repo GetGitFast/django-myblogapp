@@ -97,7 +97,6 @@ Databases & migrations (sqlite2 - Test database postgres - Production database)
 
    1.8 How to query the User table-
       From the terminal go to Python shell - "python manage.py shell"
-          >>> from blog.models import Post
           >>> from django.contrib.auth.models import User
           >>> User.objects.all() - All records from User
           >>> User.objects.first() - First record from User
@@ -111,29 +110,30 @@ Databases & migrations (sqlite2 - Test database postgres - Production database)
           >>> user = User.objects.get(id=1)
           >>> user (Result: <User: anild>)
 
-2. Create models (classes) in models.py. These models correspond to corresponding tables in the database.
-    13.1 Post
+2. Create Post class in blog\models models.py. These models correspond to tables in the database.
+    2.1 title =  models.CharField(max_length=100)
+    2.2 content = content = RichTextField() or TextField(). RichTextField is for CKEditor
+    2.3 date_posted = models.DateTimeField(default=timezone.now)
+         NOTE: Other date options-
+              date_posted = models.DateTimeField(auto_now=True) i.e. every time a posted is updated. Good for
+               field like last modified
+             date_posted = models.DateTimeField(auto_now_add=True) i.e.  Only when the posted was added. Will not update
+             in future
+    2.4 author = models.ForeignKey(User, on_delete=models.CASCADE)
+         NOTE: The author field would be populated from the User table. The User table has already been created by Django.
+               ForeignKey would create a one to many relationship between User and Post i.e. fetch only only one row
+               from the User table. on_delete=model.CASCADE would be delete all posts from Post if a user is deleted
+               from User table. NOT THE OTHER WAY AROUND.
+    2.5 Post.id would be internally created as auto_increment primary key (pk)
 
-    NOTE: Every time a new model/class is created/modified/deleted. Rerun the following commands-
-    N.1 python manage.py makemigrations
-    N.2 python manage.py sqlmigrate blog 0001 (Check the SQL for Post model. 0001 is a migration# from N.1)
-    N.3 python manage.py migrate
-    N.4 How to query database?
-        N.4.1 python manage.py shell
-        N.4.2 >>> from blog.models import Post
-              >>> from django.contrib.auth.models import User
-              >>> User.objects.all() - All records from User
-              >>> User.objects.first() - First record from User
-              >>> User.objects.last() - Last record from User
-              >>> User.objects.filter(username='anild') - Filter by username
-              >>> User.objects.filter(username='anild').first() - First record in case multiple rows for username='anild'
-              >>> user = User.objects.filter(username='anild').first()
-              >>> user (Result: <User: anild>)
-              >>> user.id (Result: 1)
-              >>> user.pk (Primary key Result: 1)
-              >>> user = User.objects.get(id=1)
-              >>> user (Result: <User: anild>)
+3.  Every time a new model/class is created/modified/deleted. Rerun the following commands-
+        3.1 python manage.py makemigrations
+        3.2 python manage.py sqlmigrate blog 0001 (Check the SQL for Post model. 0001 is a migration# from 3.1)
+        3.3 python manage.py migrate
 
+4.  How to query the Post table?
+        4.1 python manage.py shell
+        4.2 >>> from blog.models import Post
               >>> Post.objects.all() (Result: <QuerySet []> . Empty post at the moment)
               >>> post_1 = Post(title='Blog 1', content='First Post Content!', author=user)
               >>> post_1.save()
@@ -148,13 +148,21 @@ Databases & migrations (sqlite2 - Test database postgres - Production database)
               >>> post.author (Result: <User: anild>)
               >>> post.date_posted (Result: datetime.datetime(2019, 8, 4, 1, 47, 52, 194421, tzinfo=<UTC>))
               >>> post.author.email (Result: 'anil.dhar@live.com')
+              >>> The below will get all posts for an author/user
               >>> user.post_set.all() (Result: <QuerySet [<Post: Blog 1>, <Post: Blog 2>]>)
               >>> user.post_set.create(title='Blog 3', content='Third Post Content!')
               >>> Post.objects.all() (Result: <QuerySet [<Post: Blog 1>, <Post: Blog 2>, <Post: Blog 3>]>)
 
-    13.2 Register the Post model/class in the admin.py
-         Note: This will show blogs on the admin page where we can add a new blog, edit/delete an existing blog, or
-               change the author of a blog
+5. Amend the blog\views.py to fetch posts from Post table in place of dummy data
+   def home(request):
+     context = {
+             'posts': Post.objects.all()
+    }
+
+
+6. Register the Post model/class in the blog\admin.py as "admin.site.register(Post)"
+   NOTE: This will show Posts on the admin page where we can add a new blog, edit/delete an existing blog, or change the
+         author of a blog
 
 User Registration
 =================
