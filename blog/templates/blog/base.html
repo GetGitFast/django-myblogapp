@@ -12,17 +12,18 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-    <!-- Load and link custom css file -->
+    <!-- Load and link custom css file. blog/ is the path within static folder -->
     {% load static %}
-    <link rel="stylesheet" href="{% static 'blog/main.css' %}">
-
+    <link rel="stylesheet" type="text/css" href="{% static 'blog/main.css' %}">
 
     {% if title %}
         <title>MyBlogApp | {{ title}}</title>
     {% else %}
          <title>MyBlogApp</title>
     {% endif %}
+
 </head>
+
 <body>
     <!-- Header navbar -->
     <header class="site-header">
@@ -36,13 +37,16 @@
             <div class="navbar-nav mr-auto">
               <!-- {% url 'blog-home' %} etc. coming from the blog app urls.py. This is a good practice. Any change
                    needed will happen only in the urls.py-->
+              <!-- Navbar Right Side -->
               <a class="nav-item nav-link" href="{% url 'blog-home' %}">Home</a>
               <a class="nav-item nav-link" href="{% url 'blog-about' %}">About</a>
               <a class="nav-item nav-link" href="{% url 'blog-technology' %}">Technology Stack</a>
               <a class="nav-item nav-link" href="{% url 'blog-knowledge' %}">Knowledge Centre</a>
               <a class="nav-item nav-link" href="{% url 'blog-oksana' %}">MyBook</a>
             </div>
-            <!-- Navbar Right Side -->
+            <!-- Navbar Right Side ends -->
+
+            <!-- Navbar Left Side -->
             <div class="navbar-nav">
               {% if user.is_authenticated %}
                 <a class="nav-item nav-link" href="{% url 'post-create' %}">New Post</a>
@@ -56,6 +60,7 @@
                 <a class="nav-item nav-link" href="{% url 'register' %}">Register</a>
               {% endif %}
             </div>
+            <!-- Navbar Left Side ends -->
           </div>
         </div>
       </nav>
@@ -82,6 +87,8 @@
           <!-- Block content ends -->
 
         </div>
+
+        <!-- Sidebar -->
         <div class="col-md-4">
           <div class="content-section">
               <h3><center>Sidebar</center></h3>
@@ -113,6 +120,7 @@
             </p>
           </div>
         </div>
+        <!-- Sidebar ends -->
       </div>
 
       <!-- Block content1 to used for Technology & Knowledge Centre pages which will inherit this (base.html) page -->
@@ -122,6 +130,7 @@
     </main>
     <!-- Main body block ends -->
 
+     <!-- Footer -->
      <Footer class="site-footer">
       <nav class="navbar navbar-expand-md navbar-dark bg-cinnabar fixed-bottom">
         <div class="container">
@@ -129,6 +138,7 @@
         </div>
       </nav>
     </Footer>
+     <!-- Footer ends -->
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->

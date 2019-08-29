@@ -48,8 +48,10 @@ urlpatterns = [
              template_name='users/password_reset_complete.html'
          ),
          name='password_reset_complete'),
-      # path('blog/', include('blog.urls')),
-    path('', include('blog.urls')),  # http://127.0.0.1:8000/ will now default to blog app home page
+    # path('blog/', include('blog.urls')),
+    # Empty string will make blog (app) as our home page.
+    # http://127.0.0.1:8000/ will now default to blog app home page
+    path('', include('blog.urls')),
 ]
 
 """ This is the static settings for development site/server. This will change for the production site/server"""

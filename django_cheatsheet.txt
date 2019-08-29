@@ -28,12 +28,12 @@ Startup steps
 
 Building blog app (refer myblogapp Webapp project) app
 ======================================================
-
-1. Create routes in views.py
+1.0 python manage.py startapp blog (Create the Blog app)
+1.1 Create routes in views.py
 2. Create a new Python file called urls.py within the blog app to map the url pattern with each view function.
-3. Define app url (i.e. blog-home in the blog app) in the project url (myblogapp)
+3. Include (i.e. blog\urls as blog.urls) to the project urls.py (myblogapp)
 SIDE NOTE - How it all works? First Django looks into the project url (i.e. myblogapp\urls.py). Then to the app url (
-            (i.e. blog\url) and then to the app view (i.e. blog\view.py) to find the route/function.
+            (i.e. blog\url) and finally  in the app view (i.e. blog\view.py) to render html template.
 
 HTML templates
 4. create a folder "templates" under the app (i.e. blog) folder. Then crate a sub-folder under the templates folder.
@@ -43,36 +43,75 @@ HTML templates
    blog. Don't change anything here at this point). Add application (i.e. blog.apps.BlogConfig) to the INSTALLED_APPS
    list in the setting.py which is under the project (i.e. myblogapp). That is how Django will find the html templates,
    models, and databases etc.
-6. Create base.html for common tags which will be inherited by other templates.
+6. Amended views.py to render proper templates. For example:
+   return render(request, 'blog/home.html', context, {'title': 'Home'})
+   Note: blog/ is the path to look for a specific template
+7. Create base.html for common tags which will be inherited by other templates.
 
 CSS & Java Scripts
-7. create a folder "static" under the app (i.e. blog) folder. Then crate a sub-folder under the static folder.
+
+8. create a folder "static" under the app (i.e. blog) folder. Then create a sub-folder under the static folder.
    Give the same name a app to the sub-folder i.e. blog. Django will automatically look through the static folder
    and blog sub-folder.
-8. Load and link the css file in the base.html
+9. Load and link the css file in the base.html ({% load static %})
 
-Migrations
-==========
+Accessing Admin pages & initial Migrations
+==========================================
+
+1. Run preliminary migrations to create auth_users table
+   1.1  python manage.py makemigrations
+   1.2 python manage.py migrate
+
+2. Create a superuser for admin page -
+   python manage.py createsuperuser
+   2.1 User: anild
+   2.2 Email: anil.dhar@live.com
+   2.3 password: @^^^^^^^^^!
+3. python manage.py runserver
+4. Create a new test user from admin page. Don't assign this user as staff or admin (ritad / a^^r^^s^^)
+IMPORTANT NOTE : python manage.py createsuperuser - Superuser needs to be created first. Otherwise we can't login or
+register as we will get the following  message-
+"django.contrib.auth.models.User.profile.RelatedObjectDoesNotExist: User has no profile."
 
 To create a database we need to run a couple of commands-
 
-9.  python manage.py makemigrations
-10. python manage.py migrate
-11. python manage.py createsuperuser (used for admin page)
+1. python manage.py makemigrations
+2. python manage.py migrate
+3. python manage.py createsuperuser (used for admin page)
     11.1 User: anild
     11.2 Email: anil.dhar@live.com
-    11.3 password: a^^r^^s^^
-12. Create a new test user from admin page. Don't assign this user as staff or admin (ritad / a^^r^^s^^)
-
-IMPORTANT NOTE : python manage.py createsuperuser - Superuser needs to be created first.
-                 Otherwise we can't login or register as we will get the following  message-
-                 "django.contrib.auth.models.User.profile.RelatedObjectDoesNotExist: User has no profile."
+    11.3 password: @^^^^^^^^^!
 
 
 Databases & migrations (sqlite2 - Test database postgres - Production database)
 ===============================================================================
+1. The User table is automatically created when the superuser is created. The default fields are-
+   1.1 user.id/user.pk - Unique incremented automatically like 1, 2.. (Primary Key. pk)
+   1.2. username
+   1.3 first_name
+   1.4 last_name
+   1.5 email
+   1.6 password1
+   1.7 password2
+   NOTE: Check users\forms.py for details. The table can be extended by introducing custom fields.
 
-13. Create models (classes) in models.py. These models correspond to corresponding tables in the database.
+   1.8 How to query the User table-
+      From the terminal go to Python shell - "python manage.py shell"
+          >>> from blog.models import Post
+          >>> from django.contrib.auth.models import User
+          >>> User.objects.all() - All records from User
+          >>> User.objects.first() - First record from User
+          >>> User.objects.last() - Last record from User
+          >>> User.objects.filter(username='anild') - Filter by username
+          >>> User.objects.filter(username='anild').first() - First record in case multiple rows for username='anild'
+          >>> user = User.objects.filter(username='anild').first()
+          >>> user (Result: <User: anild>)
+          >>> user.id (Result: 1)
+          >>> user.pk (Primary key Result: 1)
+          >>> user = User.objects.get(id=1)
+          >>> user (Result: <User: anild>)
+
+2. Create models (classes) in models.py. These models correspond to corresponding tables in the database.
     13.1 Post
 
     NOTE: Every time a new model/class is created/modified/deleted. Rerun the following commands-

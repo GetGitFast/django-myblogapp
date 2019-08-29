@@ -13,13 +13,13 @@ from .views import (
     RecentPostsView,
     AnnouncementView,
 )
-from . import views
+from . import views  # . means current path
 
 """For 'blog-home' route the first parameter in the path could be left blank. In the earlier versions of Django 
 regular expressions were used. This is no longer required. Regular expressions were very complicated and confusing."""
 
 urlpatterns = [
-    path('', PostListView.as_view(), name='blog-home'),
+    path('', PostListView.as_view(), name='blog-home'),  # empty string means home
     path('user/<str:username>', UserPostListView.as_view(), name='user-posts'),
     path('post/<int:pk>/', PostDetailView.as_view(), name='post-detail'),
     path('post/new/', PostCreateView.as_view(), name='post-create'),

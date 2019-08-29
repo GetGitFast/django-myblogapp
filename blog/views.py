@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+# from django.http import HttpResponse
 import requests
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -47,6 +48,8 @@ def home(request):
     #  return HttpResponse('<h1>Blog Home</h1>')
     context = {
         # 'posts': posts
+        # posts below is like a key of the context dictionary which we can use in the template
+        # like posts,author, post.title etc.
         'posts': Post.objects.all()
     }
     return render(request, 'blog/home.html', context, {'title': 'Home'})

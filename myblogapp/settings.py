@@ -31,18 +31,19 @@ ALLOWED_HOSTS = ['myawesomeblogapp.herokuapp.com']
 # Application definition
 
 INSTALLED_APPS = [
+    # Apps created for the website project
     'blog.apps.BlogConfig',
     'users.apps.UsersConfig',
     'crispy_forms',
+    'ckeditor',
+    'storages',
+    # Django default Apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'ckeditor',
-    'storages'
-
 ]
 
 MIDDLEWARE = [
