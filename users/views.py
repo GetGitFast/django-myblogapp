@@ -7,8 +7,8 @@ from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 
 
 def register(request):
-    """ If POST request & form has valid fields then create account and return to login page. Otherwise, clear form
-        and render register page"""
+    """ If POST request & form has valid fields-clean user sumbitted fields, save form, pass flash message and
+        redirect to login page. Otherwise, simply populate form (request.GET) with user data and render register.html"""
     if request.method == 'POST':
         # form = UserCreationForm(request.POST)  # Populate data in the User tables using Django default
         form = UserRegisterForm(request.POST)    # Populate data in the User tables using custom form

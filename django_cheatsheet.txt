@@ -167,26 +167,33 @@ Databases & migrations (sqlite2 - Test database postgres - Production database)
 User Registration
 =================
 
-14. Create a new app (users) in the project folder (where manage.py is located).
-15. Add the new app in the settings.py (get the name from app.py of the new app)
-16. Create a templates folder and another folder underneath as the app name (i.e. users) as per the Django convenion.
-17. Then create register.html
-18. In this instance, we haven't created a separate urls.py. Instead added to the project url (i.e. myblogapp\urls.py)
-19. Put appropriate checks and validations in the register.html
-20. Put flash messages in the register.html and pass to base.html right above the content block
+1. Create a new app (users) in the project folder (where manage.py is located).
+2. Add the new app in the settings.py (get the name from app.py of the new app)
+3. Create the view to handle the registration logic i.e. def register(request): in users\views.py
+   NOTE: Don't create url pattern now. Will handled differently fot this app (i.e. users) than that of blog app
+4. Create the UserRegisterForm class in the users\forms.py. This will inherit form UserCreationForm which is a
+   Django class to create a form. This is better choice as it has got built in checks and validations. The custom
+   form would require a lots of validations etc.
+5. Import this form in the users\views.py
+6. Create a templates folder and another folder underneath as the app name (i.e. users) as per the Django convention.
+7. Then create register.html, extend blog/base.html, create <form> tag having "POST" method, add csrf_token (cross
+   site request forgery token to protect website from certain attacks), fill form details from {{ form }}that was
+   passed by users\views.py.
+8. In this instance, we haven't created a separate urls.py. Instead, we will use myblogapp\urls.py add url patterns
+   for users app there by importing "from users import views as user_views".
+9. Pass flash messages  to the base.html right above the content block with appropriate code block.
 
-21. The above will create default Django form which doesn't have email address etc.
-22. To create a custom form we will create a new Python file called forms.py under the users (app) folder
-23. Amend views.py to use customer form (UserRegisterForm)
-
-24. Now we are able to include email address from register.html. However, the format is very clumsy with a lot of
+10. The above will create default Django form which doesn't have email address etc.
+11. To create a custom form we will create a new Python file called forms.py under the users (app) folder
+12. Amend views.py to use customer form (UserRegisterForm)
+13. Now we are able to include email address from register.html. However, the format is very clumsy with a lot of
     unnecessary messages.
-25. We will use crispy-forms instead of Bootstrap to beautify resgister.html
-26. pip install django-crispy-forms
-27. Include crispy-forms in the INSTALLED_APP  and CRISPY_TEMPLATE_PACK = 'bootstrap4' (in the bottom)
+14. We will use crispy-forms (3rd party application) instead of Bootstrap to beautify register.html
+15. pip install django-crispy-forms
+16. Include crispy-forms in the INSTALLED_APP  and CRISPY_TEMPLATE_PACK = 'bootstrap4' (in the bottom)
     in myblogapp\settings.py
 
-28. Add {% load crispy_forms_tags %} to the register.html
+17. Add {% load crispy_forms_tags %} to the register.html
 
 User Login
 ==========
@@ -562,6 +569,11 @@ Weather Report
 7. Create def weather(request): in blog\views.py
 8. define weather.html in blog\templates
 9. Migrate
+
+How to shorten long posts
+=========================
+
+1. truncatewords_html (see blog\home.html and user_posts.html)
 
 NOTE FOR DEPLOYMENT IN HERUKO for main.css and ckeditor
 =======================================================
