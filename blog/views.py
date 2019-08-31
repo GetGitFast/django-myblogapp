@@ -76,6 +76,7 @@ def weather(request):
     from DEFAULT_CITY environment variable-currently set to 'Sydney'. The City table needs have atleast 'Sydney',
     or else the website would go in a spin."""
     url = 'http://api.openweathermap.org/data/2.5/weather?q={}&units=metric&appid='+settings.OWM_API.strip()
+    url1 = 'http://api.openweathermap.org/data/2.5/weather?q={}&units=imperial&appid=' + settings.OWM_API.strip()
 
     if request.method == 'GET':
         search_key = request.GET.get('q1')
@@ -89,17 +90,21 @@ def weather(request):
         messages.warning(request, f'Your city not found. Showing default city')
         return redirect('blog-weather')
 
-    print(f"cities : {cities}")
     weather_data = []
     for city in cities:
         try:
             r = requests.get(url.format(city)).json()
+            r1 = requests.get(url1.format(city)).json()
             city_weather = {'city': city.name, 'temperature': r['main']['temp'],
+                            'temperature1': r1['main']['temp'],
                             'description': r['weather'][0]['description'],
                             'icon': r['weather'][0]['icon'],
                             'humidity': r['main']['humidity'],
                             'maximum': r['main']['temp_max'],
-                            'minimum': r['main']['temp_min']}
+                            'minimum': r['main']['temp_min'],
+                            'maximum1': r1['main']['temp_max'],
+                            'minimum1': r1['main']['temp_min']
+                            }
 
             weather_data.append(city_weather)
         except KeyError:

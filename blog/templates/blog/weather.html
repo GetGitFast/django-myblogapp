@@ -4,22 +4,64 @@
     <h1 class="mb-3">What's the weather like?</h1>
     <hr>
     <p> Enter your city name to get the current weather situation in your city. I have the list of 50 cities in my database. In future, I will allow a user to add a city and setup a default city.</p>
-<h6><strong>A big thank you to <a href="https://openweathermap.org/" target="_blank">OpenWeather</a> for supplying a free Weather API.</strong></h6>
-    <br>
+    <h6><strong>A big thank you to <a href="https://openweathermap.org/" target="_blank">OpenWeather</a>
+        for supplying a free Weather API.</strong></h6>
+
    {% for city_weather in weather_data %}
-        <article class="media content-section">
-          <img class="rounded-circle article-img" src="http://openweathermap.org/img/w/{{ city_weather.icon }}.png">
-          <div class="media-body">
-            <div class="article-metadata">
-                <span class="mr-2"><strong>{{ city_weather.city }}</strong></span>
-               <strong>{{ city_weather.description }}</strong>
-            </div>
-            <h2 class="article-title">{{ city_weather.temperature }}° C</h2>
-            <p class="article-content">{{ city_weather.maximum }}° C (Max)
-              <span>{{ city_weather.minimum }}° C (Min)</span>
-              <span>{{ city_weather.humidity }}% (Humidity)</span>
-            </p>
+
+    <!-- Columns start at 50% wide on mobile and bump up to 33.3% wide on desktop -->
+      <div class="weather-grid">
+          <hr>
+          <div class="row">
+              <div class="col-6 col-md-4">
+                  <img class="rounded-circle" src="http://openweathermap.org/img/w/{{ city_weather.icon }}.png">
+                  <strong>{{ city_weather.city }}</strong>
+              </div>
+              <div class="col-6 col-md-4">
+                  <img class="rounded-circle"  src="https://ad-django-webblogapp.s3-ap-southeast-2.amazonaws.com/images/desc.png">
+                  <small>{{ city_weather.description|capfirst }}</small>
+              </div>
+              <div class="col-6 col-md-4">
+                  <img class="rounded-circle"  src="https://ad-django-webblogapp.s3-ap-southeast-2.amazonaws.com/images/humidity.png">
+                  <strong>{{ city_weather.humidity }}%</strong>
+              </div>
           </div>
-        </article>
-    {% endfor %}
+          <hr>
+          <div class="row">
+              <div class="col-6 col-md-4">
+                  <strong>Current</strong>
+              </div>
+              <div class="col-6 col-md-4">
+                  <strong>Min</strong>
+              </div>
+              <div class="col-6 col-md-4">
+                  <strong>Max</strong>
+              </div>
+          </div>
+          <hr>
+          <div class="row">
+              <div class="col-6 col-md-4">
+                  {{ city_weather.temperature }}° C
+              </div>
+              <div class="col-6 col-md-4">
+                  {{ city_weather.minimum }}° C
+              </div>
+              <div class="col-6 col-md-4">
+                  {{ city_weather.maximum }}° C
+              </div>
+          </div>
+          <div class="row">
+              <div class="col-6 col-md-4">
+                  {{ city_weather.temperature1 }}° F
+              </div>
+              <div class="col-6 col-md-4">
+                  {{ city_weather.minimum1 }}° F
+              </div>
+              <div class="col-6 col-md-4">
+                  {{ city_weather.maximum1 }}° F
+              </div>
+          </div>
+
+      </div>
+   {% endfor %}
 {% endblock content %}

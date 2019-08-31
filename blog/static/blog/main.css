@@ -155,3 +155,15 @@ a.article-title:hover {
 .account-heading {
   font-size: 2.5rem;
 }
+
+.weather-grid {
+    background-color: #D3D3D3;
+    padding-left: 30px;
+}
+
+.weather-grid img{
+  height: 35px;
+  width: 35px;
+  margin-right: 10px;
+}
+

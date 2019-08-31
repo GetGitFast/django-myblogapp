@@ -573,7 +573,7 @@ Weather Report
 How to shorten long posts
 =========================
 
-1. truncatewords_html (see blog\home.html and user_posts.html)
+1. truncatechars_html (can use truncatewords_html also) (see blog\home.html and user_posts.html)
 
 NOTE FOR DEPLOYMENT IN HERUKO for main.css and ckeditor
 =======================================================
