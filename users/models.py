@@ -13,6 +13,8 @@ class Profile(models.Model):
     def __str__(self):
         return f'{self.user.username} Profile'
 
+    """ The save method get run when a Profile is saved. This method exits in the parent class. This save super class
+         would first save large sized image and then override by saving a small sized image."""
     # def save(self, *args, **kwargs):
     #    super(Profile, self).save(*args, **kwargs)
 

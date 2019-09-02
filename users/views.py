@@ -29,9 +29,9 @@ def register(request):
 @login_required
 def profile(request):
     if request.method == 'POST':
-        u_form = UserUpdateForm(request.POST, instance=request.user)
-        p_form = ProfileUpdateForm(request.POST,
-                                   request.FILES,  # This is to find image
+        u_form = UserUpdateForm(request.POST, instance=request.user)  # instance would populate the form with currently
+        p_form = ProfileUpdateForm(request.POST,                      # logged in user
+                                   request.FILES,  # This is to for image. Whatever new image a user chooses to upload
                                    instance=request.user.profile)
         if u_form.is_valid() and p_form.is_valid():
             u_form.username = u_form.cleaned_data.get('username')

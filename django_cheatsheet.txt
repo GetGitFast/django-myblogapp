@@ -198,7 +198,7 @@ User Registration
 User Login
 ==========
 
-Django has lot of bulit in functionality to take care of this.
+Django has lot of built in functionality to take care of this in the backend.
 
 1. In the projects url (i.e. myblogapp\urls.py) import the following
     from django.contrib.auth import views as auth_views
@@ -206,11 +206,16 @@ Django has lot of bulit in functionality to take care of this.
           specific view we want to use.
 2. Add the following to the urlpatterns list -
    2.1 path('login/', auth_views.LoginView.as_view(template_name='users/login.html'), name='login'),
+   Note: This is a class based view. Will handle the forms and logic for Login. But, won't handle template so we
+   we need to create a login template. Django will find template in users/login.html
 3. Create login.html under the app (i.e. user) in the templates\users folder. Copy & paste from register.html and then
    modify for login.html
-4. Add the following at the bottom in the projects settings.py to redirect a user to the home page after sucessfully
-   logged in-
-   LOGIN_REDIRECT_URL = 'blog-home'
+4. We don't need to do anything in the users\view.py because auth_views.LoginView.as_view will handle the view.
+   However, we need to add the following in the projects settings.py to redirect a user to the home page after
+   for a  successful login-
+   LOGIN_REDIRECT_URL = 'blog-home' (Redirect after successful login)
+   LOGIN_URL = 'login'
+
 5. Modify users\views.py so that users are redirected to the login page after successful registration -
    5.1 messages.success(request, f'Your account has been created! You are now able to log in')
    5.2 return redirect('login')
@@ -220,21 +225,24 @@ User Logout
 6. Add the following to the urlpatterns list (myblogapp\urls.py) -
    6.1 path('logout/', auth_views.LogoutView.as_view(template_name='users/logout.html'), name='logout'),
 7. Create logout.html under the app (i.e. user) in the templates\users folder. Copy & paste from register.html and then
-   modify for logout.html
+   modify for logout.html otherwise it would render admin logout template.
 
 User Profile
 ============
 
-1. Add the profile route to the users\views.py
-2. Create the profile.html in users\users\templates
-3. Copy & paste from login.html and them modify
-4. Add path in  the urlpatterns list in myblogapp\urls.py
-5. Add profile in the navbar in the blog\base.html
-6. In the users\views.py -
+1. Add the profile route (def profile(request):) to the users\views.py as user_view
+2. Create the profile.html in users\users\templates. We don't need to pass variable such as user.username to the
+   template. These are variable are available to the template through Django built in feature that represtnts the
+   current logged in user.
+3. Add path in  the urlpatterns list in myblogapp\urls.py
+4. Add profile url link in the navbar in the blog\base.html
+5. In the users\views.py -
    6.1 from django.contrib.auth.decorators import login_required
    6.2 Add login_required decorator the profile route
-   6.3 Add LOGIN_URL = 'login' to the myblogapp\settings.py
    NOTE: This will make sure only logged in users could access profile page
+   6.3 Add LOGIN_URL = 'login' to the myblogapp\settings.py. This will tell Django where to look for profile page. (Don't
+   why url patterns can't resolve this??)
+
 
 Setting up User Profile and Picture
 ===================================
@@ -242,11 +250,12 @@ Setting up User Profile and Picture
 1. Extend users\models.py by importing the following-
    1.1 from django.contrib.auth.models import User
    1.2 Define Profile class
+   1.3 Set one to one relation so that one profile corresponds to one user
 2. From the projects folder (i.e. myblogapp where manage.py exists)-
    2.1 pip install pillow (Python's image handling library)
    2.2 python manage.py makemigrations
    2.3 python manage.py migrate
-3. In order to view Profile on the admin page we ned to register Profile in users\admin.py
+3. In order to view Profile on the admin page we need to register Profile in users\admin.py
 4. We can now add profiles for users from our admin page.
 5. Investigation of user profile from Django shell-
    5.1 Stop the server
@@ -263,8 +272,8 @@ Setting up User Profile and Picture
    >>> user
    >>> user.profile.image
    NOTE: profile_pics (whatever has been defined in users\models.py) folder would be automatically created in the
-         project folder (i.e. myblogapp folder where manage.py exists)
-6. However, the above path for the profile picture is a good location as multiple models would clutter up the project
+         project's root folder (i.e. myblogapp folder where manage.py exists)
+6. However, the above path for the profile picture is not a good location as multiple models would clutter up the project
    root directory with different images directories. To fix the issue-
    6.1 Add the following two variables to the myblogapp\settings.py file-
        MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # This will add full path. The images are stored in the file system
@@ -281,24 +290,27 @@ Setting up User Profile and Picture
    8.2 from django.conf.urls.static import static
    8.3 if settings.DEBUG:
          urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-9. Now automatically  add profile (with default image) at the time of SIGN UP after successful registration. Currently,
+9. To automatically  add profile (with default image) at the time of SIGN UP after successful registration. Currently,
    profile can be  setup from admin page. This is  very easy by using Django Signal-
    9.1 Create a new file signals.py under the users app.
-   NOTE: Some people may not create signals.py instead define create_profile and save_profile in the models.py under app.
+   NOTE: Some people may not create signals.py instead define create_profile and save_profile methods in the
+         users\models.py.
          However, this is not recommended by Django documentation. Therefore, it is a good practice to create a separate
-         file i.e. signals.py
-   9.2. Define ready method in the app.py (under the users app)
+         file i.e. signals.py.This signal will get fired after an object is saved. We want to get a post_save signal
+         when a new user is created. User model in this case is the sender of the signal. We also need to define the
+         receiver signal. A receiver signal is function that gets this signal and then performs some task.
+   9.2. Define ready method in the users\app.py (under the users app)
 
 Updating User profile
 =====================
 
-1. Create a model form in users\forms.py. Model forms allow us to work with a specific datbase model.
+1. Create a model form in users\forms.py. Model forms allow us to work with a specific database model.
 2. Import profile model to update profile picture-
    "from .models import Profile"
-2. Now create two model forms UserUpdateForm and ProfileUpdateForm. Although they have been created a seperate classes
+2. Now create two model forms UserUpdateForm and ProfileUpdateForm. Although they have been created a separate classes
    but would be shown together in the browser (i.e. views.py)
 3. Now import UserUpdateForm, ProfileUpdateForm in users\views.py
-4. Extend update functionality to the profile function (i.e. profile)
+4. Extend "update functionality" to the profile function method in the users\views.py
 5. Include update snippet to the users\profile.html
 6. Now login and test updates for username, email and profile picture
 7. After updating profile cross-check updated info for the user in the admin panel
