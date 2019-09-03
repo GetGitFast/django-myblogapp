@@ -321,46 +321,81 @@ Updating User profile
    9.1 Add the following HTML code to blog\home.html -
        " <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">"
 
-CREATE. UPDATE, & DELETE Blogs
-==============================
+LIST POST, LIST INDIVIDUAL POST, CREATE. UPDATE, & DELETE Blogs
+================================================================
 
-1. To achieve this we will use class based views. So far, we have used function based view like "def home(request)".
-   Class based view have lot more functionality that will handle lot more back-end logic. There are a lot of class based
-   views like list views, detail views, create views, update views, delete views, and much more.
-2. For that to happen, we will add class based views to blogs\views.py
-3. We also need to modify blogs\urls.py to modify urlpatterns list -
-   3.1 from .views import PostListView
-   3.2 Amend views.py to create classed based view for PostDetailView
-   3.3 Amend urlpatterns to include path for PostListView to urlpatterns list
-4. View Individual posts
-   4.1 repeat 3.1 - 3.2 for PostDetailView
-   4.2 Create new html called post_detail.html as Django naming convention
+To achieve this we will use class based views. So far, we have used function based view like "def home(request)".
+Class based view have lot more functionality that will handle lot more back-end logic. There are a lot of class based
+views like list views, detail views, create views, update views, delete views, and much more.
 
-5. Activate href links in blog/home.html
-6. Create a new Post
-   6.1 Repeat 3.1 for PostCreateView
-   6.2 The same template would used to update a post. So, the html name would not be post_create.html or post_update.html.
-       Instead, Django expects this template to be named as post_form.html
-   6.3 This template would be more or less like register.html with some changes.
-   6.4 Needs add a method (def form_valid) to PostCreateView to validate and assign logged in user
-   6.5 Also need to add a method (def get_absolute_url) to models.py so that user is redirected to the newly created
-       post page.
+1. List All posts in home page
+   1.1 Amend blog\views.py "from django.views.generic import ListView"
+   1.2 Define
+       class PostListView(ListView):
+         model = Post
+        template_name = 'blog/home.html'  # <app>/<model>_<viewtype>.html
+        context_object_name = 'posts'  # The default context_object_name is is object_list. Overriding  with 'posts'
+        ordering = ['-date_posted']  # 'date_posted' would list from oldest to newest. - would change the order
+        paginate_by = 5
+       NOTE: template_name and context_object_name variables  are not required if we had used the Django defaults.
+    1.3. Amend path('', PostListView.as_view(), name='blog-home'), in blog\urls.py
+        The url will now look for PostListView on blog/home.html as that template has been passed to the view.
 
-7. Update a post
-   7.1 Repeat 3.1 for PostUpdateView
-   7.2 The same template (i.e. post_form.html) would be used to update a post.
-   7.3 The PostUpdateView requires additional check to prevent a user to update other people's post. Another method
-       (def test_func) added to this class based function in views.py
+2. View Individual posts
+   2.1 from django.views.generic import DetailView
+   2.2 Define
+       class PostDetailView(DetailView):
+            model = Post
+   NOTE: Using Django default variable name. Notice the difference in blog\post_detail.html where we are referring
+         variables as object such as object.author.username etc.
+   2.3 Amend path('post/<int:pk>/', PostDetailView.as_view(), name='post-detail'), in blog\urls.py
+   4.2 Create new html called post_detail.html as Django naming convention <app>/<model>_<viewtype>.html
+       i.e. blog/post_detail.html
+3. Amend blog/home.html so that when a uses clicks a title it takes to individual post.
+
+4. Create a new Post
+   4.1 from django.views.generic import CreateView
+   4.2 Define
+       class PostCreateView(LoginRequiredMixin, CreateView):
+         model = Post
+         fields = ['title', 'content']  # Pass the fields that are needed to create a new post
+
+         def form_valid(self, form):
+            form.instance.author = self.request.user
+            return super().form_valid(form)
+       NOTE: Class based views don't accept decorators so LoginRequiredMixin would make sure that a user is logged in
+             to create new post
+    4.3 Amend urls.py path('post/new/', PostCreateView.as_view(), name='post-create'),
+    4.4 Create a template called post_form.html.
+        NOTE: This template would be shared with update post view and naming convention is very important. In the
+              create new post and update a post Djano expect the template name as <model>_form.html
+    4.5 Add a method def form_valid(self, form) to  the class PostCreateView to retrieve author.id otherwise Django
+        will fail due to integrity error. This will override default form_valid method which will allow us to add
+        author.id before the form is submitted.
+    4.5 Also need to add a method (def get_absolute_url) to blog\models.py so that user is redirected to the newly
+        created  post page. This has to be return reverse NOT return redirect.
+    4.6 Activate href link for "New Post" in blog/home.html
+
+5. Update a post
+   5.1 Same like CreateView with minor changes.
+   5.2 from django.views.generic import CreateView
+   5.3 Add def test_func(self) to the class PostUpdateView to prevent any user to update other people's post. Works in
+       conjunction with UserPassesTestMixin
+   5.4 set path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),  in blog\urls/py
+   5.5 Django will automatically use post_form.html template. No need to define a separate template.
 
 8. Delete a post
-   8.1  Repeat 3.1 for PostDeleteView
-   8.2 This will work  PostDetailView
-   8.3 The template to delete a post would be named as post_confirm_delete.html
-   8.4 We can copy from post_form.html and then modify the contents
+   8.1. Delete is similar to detail view.
+   8.2 from django.views.generic import DeleteView
+   8.3 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView): in blog\views.py
+   8.4 Add path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'), to blog\urls/py
+   8.5 Create post_confirm_delete.html. This template expects as form to 'Confirm' or 'Cancel'
+   8.6 Add 'success_url = '/' class PostDeleteView (blog\views.py) so that a user is redirected to blog\home page
+       after successful deletion of a post.
 
 9. Add Create, Update, and Delete (posts) links to html pages
-   9.1 Create Post link to be added to navbar in the blog\base.html (If a user is logged in)
-   9.2 Update and Delete links to be added in the blog\post_detail.html
+   9.1 Create 'New Post'  to navbar in the blog\base.html (If a user is logged in)
+   9.2 'Update' and 'Delete' links to the blog\post_detail.html
 
 PAGINATION
 ==========
@@ -368,7 +403,7 @@ PAGINATION
 Understanding Pagination
 ------------------------
 
-First Check the current user-id
+1. First Check  user-id's against a username
 
 1. From the terminal run "python manage.py shell"
 >>> from django.contrib.auth.models import User
@@ -377,34 +412,35 @@ First Check the current user-id
 ...     user.username, user.id    (NOTE: Don't forget to tab)
 ....
 
- This will list all  'username' and corresponding 'id'.
+NOTE: This will list all  'username' and corresponding 'id' so that we could update our JSON file with correct user.id.
 
-1. First we will add posts to our Post table in sqlite3
-2. Create post.json file in the project directory (where manage.py lives)
-3. From the terminal invoke Django shell-
-   "python manage.py shell"
-4. >>> import json
-   >>> from blog.models import Post
-   >>> with open('posts.json') as f:
-   ...  posts_json = json.load(f) [NOTE: execute this after tab]
-   ...
-   >>>for post in posts_json:
-   ...  post = Post(title=post['title'], content=post['content'], author_id=post['user_id'])
-   ...  post.save()
-   ...
-   >>>exit()
-5. pip install paginator
-6. How paginator works?
-   6.1 Start Django shell (python manage.py shell)
-   6.2 from django.core.paginator import Paginator
-   6.3 posts = ['My post 1', 'My post 2', 'My post 3', 'My post 4', 'My post 5']  - Dummy posts
-   6.4 p = Paginator(posts, 2)  - Set 2 posts per page
-   6.5 p.num_pages - Result: 3 since there are total 5 posts and 2 posts per page have been set.
-   6.6 >>> for page in p.page_range:
+
+2. Next we will add posts to our Post table in sqlite3
+   2.1 Create post.json file in the project directory (where manage.py lives)
+   2.2 From the terminal invoke Django shell-
+       "python manage.py shell"
+        >>> import json
+        >>> from blog.models import Post
+        >>> with open('posts.json') as f:
+        ...  posts_json = json.load(f) [NOTE: execute this after tab]
+        ...
+        >>>for post in posts_json:
+        ...  post = Post(title=post['title'], content=post['content'], author_id=post['user_id'])
+        ...  post.save()
+        ...
+        >>>exit()
+3. pip install paginator
+4. How paginator works?
+   4.1 Start Django shell (python manage.py shell)
+   4.2 from django.core.paginator import Paginator
+   4.3 posts = ['My post 1', 'My post 2', 'My post 3', 'My post 4', 'My post 5']  - Dummy posts
+   4.4 p = Paginator(posts, 2)  - Set 2 posts per page
+   4.5 p.num_pages - Result: 3 since there are total 5 posts and 2 posts per page have been set.
+   4.6 >>> for page in p.page_range:
         ...     print(page)
         ...
         Result: 1, 2, 3 loop over page range
-   6.7  p1 = p.page(1)
+   4.7  p1 = p.page(1)
         p1  (Result: <Page 1 of 3>)
         p1.number (Result: 1)
         p1.object_list (Result: ['My post 1', 'My post 2'])
@@ -417,26 +453,29 @@ Implementation
 
 1. Open blogs\views.py
 2. Since we are using class based function PostListView(ListView), we don't need to import Paginator.
-3. Add "paginate_by = 2 " towards the end to this class
+3. Add "paginate_by = 2 " towards the end to this class (i.e. add pagination to blog/home.html)
 4. #3 will add Pagination functionality but will now give links to next pages. The only was to move to next set of
    pages can only be done manually like http://127.0.0.1:8000/?page=1, http://127.0.0.1:8000/?page=2 and so one
-5. We will need to add links logic to blog\home.html after the for loop.
+5. We will need to add Pagination links logic to blog\home.html after the for loop.
 
-DISPLAYING SELECTIVE POSTS FOR A USER
-=====================================
+Retrieving user specific posts
+------------------------------
+When user clicks on a username, retrieve posts specific to that username. This view is similar to
+class PostListView(ListView): that was used to retrieve all posts on blog\home.html.
 
-1. When clicking on username on the home page blogs, we will display blogs for that user
-2. This would be similar to PostListView by filtering blogs
-3. Copy PostListView from blog\views.py  and crate another class based function UserPostListView
-4. from django.shortcuts import get_object_or_404 in blog\views.py
-5. from django.contrib.auth.models import User in blog\views.py
-6. Import UserPostListView in blog\urls.py
-7. Add path for PostDetailView to urlpatterns in blog\urls.py
-8. Create a new html called user_posts.html in blog\templates
-9. This is going to identical to blog\templates/home.html
-10. Just add <h1>Posts by {{ view.kwargs.username}}</h1>
-11. Update <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a> in blog\home.html
-12. Update <a class="mr-2" href="{% url 'user-posts' object.author.username %}">{{ object.author }}</a> in
+1. Amend views.py
+   1.1 Create another class based function UserPostListView in the blog\views.py
+   1.2 from django.shortcuts import get_object_or_404 in blog\views.py
+   1.3 from django.contrib.auth.models import User in blog\views.py
+   1.4 Import UserPostListView in blog\urls.py
+   1.5 Add def get_queryset(self): to filer username based posts and validate the username object exists
+
+2. Add  path('user/<str:username>', UserPostListView.as_view(), name='user-posts') in the blog\urls.py
+3. Create new template
+   3.1 Create a new html called user_posts.html in blog\templates. This is going to identical to blog\templates/home.html
+   3.2  Just add <h1>Posts by {{ view.kwargs.username}}</h1>
+   3.3 Update <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a> in blog\home.html
+   3.4 Update <a class="mr-2" href="{% url 'user-posts' object.author.username %}">{{ object.author }}</a> in
     post_detail.html
 
 EMAIL AND PASSWORD RESET

@@ -1,6 +1,6 @@
 {% extends "blog/base.html" %}
-<!-- html page of individual post. The noticiable difference here is that fields have to referred as objects as against
-     post (for example {{ object.author }}) -->
+<!-- html page of individual post. The noticeable difference here is that fields have to referred as objects as against
+     post (for example {{ object.author }}) because we has passed Django default from views.py -->
 {% block content %}
   <article class="media content-section">
     <img class="rounded-circle article-img" src="{{ object.author.profile.image.url }}">

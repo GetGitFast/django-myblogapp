@@ -120,11 +120,20 @@ def weather(request):
 
 # Below are the examples of class based views
 class PostListView(ListView):
+    """Class based view to list all blogs on the home page. template_name and context_object_name variables
+       are not required if had used the Django defaults. """
     model = Post
     template_name = 'blog/home.html'  # <app>/<model>_<viewtype>.html
-    context_object_name = 'posts'
+    context_object_name = 'posts'  # To override the default object_list with post
     ordering = ['-date_posted']  # 'date_posted' would list from oldest to newest. - would change the order
     paginate_by = 5
+
+
+class PostDetailView(DetailView):
+    """" List detailed view of an individual blog. Using Django default variable here. otice the difference in
+        post_detail.html where we are referring variables as object such as object.author.username etc.
+        The template name has to follow Django naming convention i.e.  <app>/<model>_<viewtype>.html"""
+    model = Post
 
 
 class UserPostListView(ListView):
@@ -140,44 +149,10 @@ class UserPostListView(ListView):
         return Post.objects.filter(author=user).order_by('-date_posted')
 
 
-class SearchPostsView(ListView):
+class PostCreateView(LoginRequiredMixin, CreateView):
+    """ Allow logged in user to create a new post. Override default form_valid method to retrieve author
+        before form is submitted. """
     model = Post
-    template_name = 'blog/search_posts.html'  # <app>/<model>_<viewtype>.html
-    context_object_name = 'posts'
-    paginate_by = 5
-
-    def get_queryset(self):
-        search_key = self.request.GET.get('q')
-        if search_key:
-            object_list = Post.objects.filter(
-                Q(title__icontains=search_key) |
-                Q(content__icontains=search_key) |
-                Q(author__username__icontains=search_key) |
-                Q(author__first_name__icontains=search_key) |
-                Q(author__last_name__icontains=search_key)
-            ).order_by('-date_posted')
-        else:
-            object_list = Post.objects.all().order_by('-date_posted')
-        return object_list
-
-
-class RecentPostsView(ListView):
-    model = Post
-    template_name = 'blog/recent_posts.html'  # <app>/<model>_<viewtype>.html
-    context_object_name = 'posts'
-    paginate_by = 5
-
-    def get_queryset(self):
-        object_list = Post.objects.all().order_by('-date_posted')[:5]
-        return object_list
-
-
-class PostDetailView(DetailView):
-    model = Post
-
-
-class PostCreateView(LoginRequiredMixin, CreateView):  # Class based views don't accept decorators so LoginRequiredMixin
-    model = Post                                       # would make sure that a user is logged in to create new post
     fields = ['title', 'content']
 
     def form_valid(self, form):
@@ -215,6 +190,36 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return False
 
 
+class SearchPostsView(ListView):
+    model = Post
+    template_name = 'blog/search_posts.html'  # <app>/<model>_<viewtype>.html
+    context_object_name = 'posts'
+    paginate_by = 5
+
+    def get_queryset(self):
+        search_key = self.request.GET.get('q')
+        if search_key:
+            return Post.objects.filter(
+                Q(title__icontains=search_key) |
+                Q(content__icontains=search_key) |
+                Q(author__username__icontains=search_key) |
+                Q(author__first_name__icontains=search_key) |
+                Q(author__last_name__icontains=search_key)
+            ).order_by('-date_posted')
+
+        return Post.objects.all().order_by('-date_posted')
+
+
+class RecentPostsView(ListView):
+    model = Post
+    template_name = 'blog/recent_posts.html'  # <app>/<model>_<viewtype>.html
+    context_object_name = 'posts'
+    paginate_by = 5
+
+    def get_queryset(self):
+        return Post.objects.all().order_by('-date_posted')[:10]
+
+
 class AnnouncementView(ListView):
     model = Announcement
     template_name = 'blog/announcements.html'  # <app>/<model>_<viewtype>.html
@@ -222,8 +227,8 @@ class AnnouncementView(ListView):
     paginate_by = 3
 
     def get_queryset(self):
-        object_list = Announcement.objects.filter(display=True).order_by('-date_posted')
-        return object_list
+        return Announcement.objects.filter(display=True).order_by('-date_posted')[:5]
+
 
 
 
