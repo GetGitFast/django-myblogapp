@@ -14,9 +14,9 @@ from django.views.generic import (
 )
 from .models import Post  # .models indicates same directory and from the models file in the current package
 from .models import Announcement
-from django.conf import settings
 from .models import City
 
+from django.conf import settings
 
 # from django.http import HttpResponse
 # Create your views here.

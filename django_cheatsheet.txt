@@ -480,10 +480,27 @@ class PostListView(ListView): that was used to retrieve all posts on blog\home.h
 
 EMAIL AND PASSWORD RESET
 ========================
+
+Django has a built in functionality (through "from django.contrib.auth import views as auth_views") that a generate a
+secure token to ensure that ony a specific user can reset password.
+Sequence to reset the password-
+>Password reset
+>Password reset done
+>Password reset confirm
+>Password reset complete
+
 1. Add for password-reset/, password-reset/done/, password-reset-confirm, and password-reset-complete/ path to
    urlpatterns list in  myblogapp\urls.py
-2. The template  would be under  users app called password_reset.html, users/password_reset_done.html,
-   users/password_reset_confirm.html, and users/password_reset_complete.html.
+2. Create templates under users app:
+   2.1 password_reset.html - Form for filling out email address
+   2.2 password_reset_done.html - Page to inform user than the reset email has been sent
+   2.3 password_reset_confirm.html - Form to confirm reset password. Also, the url expects two parameters
+       [path('password-reset-confirm/<uidb64>/<token>/]
+       NOTE: Adding a layer of security that user is the correct user (uidb64 - User's id encoded in base 64) and
+       a token to check user's password is valid by Django.
+   2.4 password_reset_complete.html -
+   2.4 password_reset_complete.html - Page that informs a user that the password has been completed. Now the user
+                                      can login
 3. Setting up email server using Gmail
    3.1 https://accounts.google.com/signin/v2/sl/pwd?service=accountsettings&passive=1209600&osid=1&continue=https%3A%2F%2Fmyaccount.google.com%2Fapppasswords&followup=https%3A%2F%2Fmyaccount.google.com%2Fapppasswords&rart=ANgoxcc1-GW6kfm8Wa-LVMiWPO4JpXTAUAR8tk6CGR-KuDjorPmdv34YVh-i-_OezbGl4L-pDWr-3cwDsUOgJRzZB4L9IBDe1Q&authuser=0&csig=AF-SEnZKHKnkj6K1wG_K%3A1565240409&flowName=GlifWebSignIn&flowEntry=ServiceLogin
    3.2 37kirkwall@gmail.com / ^^^^^^^^^^
@@ -713,7 +730,7 @@ Running Python from Git Bash
 Website - https://myawesomeblogapp.herokuapp.com/
 Heroku Dashboard - https://dashboard.heroku.com/apps/myawesomeblogapp/settings
 
-
+IMPORTANT
 
 
 
