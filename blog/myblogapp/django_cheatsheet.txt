@@ -1,0 +1,779 @@
+DJANGO CHEATSHEET
+=================
+
+Full Django Tutorials - https://www.youtube.com/playlist?list=PL-osiE80TeTtoQCKZ03TU5fNfx2UY6U4p
+
+Startup steps
+=============
+
+1. Create a virtualenv for Django (django_env)
+2. Activate virtualenv
+3. #1 & #2 can be done within IDE i.e. Pycharm
+3. pip3 install django
+4. CD to the project directory
+5. Start a new Django project:
+   django-admin startproject <project name>
+
+6. #5 will create default py files and folder structure in the project directory
+
+7. python manage.py runserver  (Will start server)
+
+6. In Django we can create multiple apps with an projects. It has multiple benefits like isolating apps and also
+   moving them around one project to another. Run the following command from the manage.py folder-
+
+   python manage.py startapp blog
+
+7. python manage.py createsuperuser (For admin)
+
+
+Building blog app (refer myblogapp Webapp project) app
+======================================================
+1.0 python manage.py startapp blog (Create the Blog app)
+1.1 Create routes in views.py
+2. Create a new Python file called urls.py within the blog app to map the url pattern with each view function.
+3. Include (i.e. blog\urls as blog.urls) to the project urls.py (myblogapp)
+SIDE NOTE - How it all works? First Django looks into the project url (i.e. myblogapp\urls.py). Then to the app url (
+            (i.e. blog\url) and finally  in the app view (i.e. blog\view.py) to render html template.
+
+HTML templates
+4. create a folder "templates" under the app (i.e. blog) folder. Then crate a sub-folder under the templates folder.
+   Give the same name a app to the sub-folder i.e. blog. Django will automatically look through the templates folder
+   and blog sub-folder.
+5. Once the templates folder  and the blog sub-folder are created. We need to add our app (see app.py under our app i.e.
+   blog. Don't change anything here at this point). Add application (i.e. blog.apps.BlogConfig) to the INSTALLED_APPS
+   list in the setting.py which is under the project (i.e. myblogapp). That is how Django will find the html templates,
+   models, and databases etc.
+6. Amended views.py to render proper templates. For example:
+   return render(request, 'blog/home.html', context, {'title': 'Home'})
+   Note: blog/ is the path to look for a specific template
+7. Create base.html for common tags which will be inherited by other templates.
+
+CSS & Java Scripts
+
+8. create a folder "static" under the app (i.e. blog) folder. Then create a sub-folder under the static folder.
+   Give the same name a app to the sub-folder i.e. blog. Django will automatically look through the static folder
+   and blog sub-folder.
+9. Load and link the css file in the base.html ({% load static %})
+
+Accessing Admin pages & initial Migrations
+==========================================
+
+1. Run preliminary migrations to create auth_users table
+   1.1  python manage.py makemigrations
+   1.2 python manage.py migrate
+
+2. Create a superuser for admin page -
+   python manage.py createsuperuser
+   2.1 User: anild
+   2.2 Email: anil.dhar@live.com
+   2.3 password: @^^^^^^^^^!
+3. python manage.py runserver
+4. Create a new test user from admin page. Don't assign this user as staff or admin (ritad / a^^r^^s^^)
+IMPORTANT NOTE : python manage.py createsuperuser - Superuser needs to be created first. Otherwise we can't login or
+register as we will get the following  message-
+"django.contrib.auth.models.User.profile.RelatedObjectDoesNotExist: User has no profile."
+
+To create a database we need to run a couple of commands-
+
+1. python manage.py makemigrations
+2. python manage.py migrate
+3. python manage.py createsuperuser (used for admin page)
+    11.1 User: anild
+    11.2 Email: anil.dhar@live.com
+    11.3 password: @^^^^^^^^^!
+
+
+Databases & migrations (sqlite2 - Test database postgres - Production database)
+===============================================================================
+1. The User table is automatically created when the superuser is created. The default fields are-
+   1.1 user.id/user.pk - Unique incremented automatically like 1, 2.. (Primary Key. pk)
+   1.2. username
+   1.3 first_name
+   1.4 last_name
+   1.5 email
+   1.6 password1
+   1.7 password2
+   NOTE: Check users\forms.py for details. The table can be extended by introducing custom fields.
+
+   1.8 How to query the User table-
+      From the terminal go to Python shell - "python manage.py shell"
+          >>> from django.contrib.auth.models import User
+          >>> User.objects.all() - All records from User
+          >>> User.objects.first() - First record from User
+          >>> User.objects.last() - Last record from User
+          >>> User.objects.filter(username='anild') - Filter by username
+          >>> User.objects.filter(username='anild').first() - First record in case multiple rows for username='anild'
+          >>> user = User.objects.filter(username='anild').first()
+          >>> user (Result: <User: anild>)
+          >>> user.id (Result: 1)
+          >>> user.pk (Primary key Result: 1)
+          >>> user = User.objects.get(id=1)
+          >>> user (Result: <User: anild>)
+
+2. Create Post class in blog\models models.py. These models correspond to tables in the database.
+    2.1 title =  models.CharField(max_length=100)
+    2.2 content = content = RichTextField() or TextField(). RichTextField is for CKEditor
+    2.3 date_posted = models.DateTimeField(default=timezone.now)
+         NOTE: Other date options-
+              date_posted = models.DateTimeField(auto_now=True) i.e. every time a posted is updated. Good for
+               field like last modified
+             date_posted = models.DateTimeField(auto_now_add=True) i.e.  Only when the posted was added. Will not update
+             in future
+    2.4 author = models.ForeignKey(User, on_delete=models.CASCADE)
+         NOTE: The author field would be populated from the User table. The User table has already been created by Django.
+               ForeignKey would create a one to many relationship between User and Post i.e. fetch only only one row
+               from the User table. on_delete=model.CASCADE would be delete all posts from Post if a user is deleted
+               from User table. NOT THE OTHER WAY AROUND.
+    2.5 Post.id would be internally created as auto_increment primary key (pk)
+
+3.  Every time a new model/class is created/modified/deleted. Rerun the following commands-
+        3.1 python manage.py makemigrations
+        3.2 python manage.py sqlmigrate blog 0001 (Check the SQL for Post model. 0001 is a migration# from 3.1)
+        3.3 python manage.py migrate
+
+4.  How to query the Post table?
+        4.1 python manage.py shell
+        4.2 >>> from blog.models import Post
+              >>> Post.objects.all() (Result: <QuerySet []> . Empty post at the moment)
+              >>> post_1 = Post(title='Blog 1', content='First Post Content!', author=user)
+              >>> post_1.save()
+              >>> Post.objects.all() (Result: <QuerySet [<Post: Blog 1>]>)
+              >>> post_2 = Post(title='Blog 2', content='Second Post Content!', author_id=user.id)
+              >>> post_1.save()
+              >>> Post.objects.all() (Result: <QuerySet [<Post: Blog 1>, <Post: Blog 2>]>
+                  Note: The result is showing what has been returned by __str__  in models.py
+              >>> post = Post.objects.first()
+              >>> post.title (Result: 'Blog 1')
+              >>> post.content (Result: 'First Post Content!')
+              >>> post.author (Result: <User: anild>)
+              >>> post.date_posted (Result: datetime.datetime(2019, 8, 4, 1, 47, 52, 194421, tzinfo=<UTC>))
+              >>> post.author.email (Result: 'anil.dhar@live.com')
+              >>> The below will get all posts for an author/user
+              >>> user.post_set.all() (Result: <QuerySet [<Post: Blog 1>, <Post: Blog 2>]>)
+              >>> user.post_set.create(title='Blog 3', content='Third Post Content!')
+              >>> Post.objects.all() (Result: <QuerySet [<Post: Blog 1>, <Post: Blog 2>, <Post: Blog 3>]>)
+
+5. Amend the blog\views.py to fetch posts from Post table in place of dummy data
+   def home(request):
+     context = {
+             'posts': Post.objects.all()
+    }
+
+
+6. Register the Post model/class in the blog\admin.py as "admin.site.register(Post)"
+   NOTE: This will show Posts on the admin page where we can add a new blog, edit/delete an existing blog, or change the
+         author of a blog
+
+User Registration
+=================
+
+1. Create a new app (users) in the project folder (where manage.py is located).
+2. Add the new app in the settings.py (get the name from app.py of the new app)
+3. Create the view to handle the registration logic i.e. def register(request): in users\views.py
+   NOTE: Don't create url pattern now. Will handled differently fot this app (i.e. users) than that of blog app
+4. Create the UserRegisterForm class in the users\forms.py. This will inherit form UserCreationForm which is a
+   Django class to create a form. This is better choice as it has got built in checks and validations. The custom
+   form would require a lots of validations etc.
+5. Import this form in the users\views.py
+6. Create a templates folder and another folder underneath as the app name (i.e. users) as per the Django convention.
+7. Then create register.html, extend blog/base.html, create <form> tag having "POST" method, add csrf_token (cross
+   site request forgery token to protect website from certain attacks), fill form details from {{ form }}that was
+   passed by users\views.py.
+8. In this instance, we haven't created a separate urls.py. Instead, we will use myblogapp\urls.py add url patterns
+   for users app there by importing "from users import views as user_views".
+9. Pass flash messages  to the base.html right above the content block with appropriate code block.
+
+10. The above will create default Django form which doesn't have email address etc.
+11. To create a custom form we will create a new Python file called forms.py under the users (app) folder
+12. Amend views.py to use customer form (UserRegisterForm)
+13. Now we are able to include email address from register.html. However, the format is very clumsy with a lot of
+    unnecessary messages.
+14. We will use crispy-forms (3rd party application) instead of Bootstrap to beautify register.html
+15. pip install django-crispy-forms
+16. Include crispy-forms in the INSTALLED_APP  and CRISPY_TEMPLATE_PACK = 'bootstrap4' (in the bottom)
+    in myblogapp\settings.py
+
+17. Add {% load crispy_forms_tags %} to the register.html
+
+User Login
+==========
+
+Django has lot of built in functionality to take care of this in the backend.
+
+1. In the projects url (i.e. myblogapp\urls.py) import the following
+    from django.contrib.auth import views as auth_views
+    NOTE: "as auth_views" is required because  "import views" imports whole set of views. We want to distinguish which
+          specific view we want to use.
+2. Add the following to the urlpatterns list -
+   2.1 path('login/', auth_views.LoginView.as_view(template_name='users/login.html'), name='login'),
+   Note: This is a class based view. Will handle the forms and logic for Login. But, won't handle template so we
+   we need to create a login template. Django will find template in users/login.html
+3. Create login.html under the app (i.e. user) in the templates\users folder. Copy & paste from register.html and then
+   modify for login.html
+4. We don't need to do anything in the users\view.py because auth_views.LoginView.as_view will handle the view.
+   However, we need to add the following in the projects settings.py to redirect a user to the home page after
+   for a  successful login-
+   LOGIN_REDIRECT_URL = 'blog-home' (Redirect after successful login)
+   LOGIN_URL = 'login'
+
+5. Modify users\views.py so that users are redirected to the login page after successful registration -
+   5.1 messages.success(request, f'Your account has been created! You are now able to log in')
+   5.2 return redirect('login')
+
+User Logout
+===========
+6. Add the following to the urlpatterns list (myblogapp\urls.py) -
+   6.1 path('logout/', auth_views.LogoutView.as_view(template_name='users/logout.html'), name='logout'),
+7. Create logout.html under the app (i.e. user) in the templates\users folder. Copy & paste from register.html and then
+   modify for logout.html otherwise it would render admin logout template.
+
+User Profile
+============
+
+1. Add the profile route (def profile(request):) to the users\views.py as user_view
+2. Create the profile.html in users\users\templates. We don't need to pass variable such as user.username to the
+   template. These are variable are available to the template through Django built in feature that represtnts the
+   current logged in user.
+3. Add path in  the urlpatterns list in myblogapp\urls.py
+4. Add profile url link in the navbar in the blog\base.html
+5. In the users\views.py -
+   6.1 from django.contrib.auth.decorators import login_required
+   6.2 Add login_required decorator the profile route
+   NOTE: This will make sure only logged in users could access profile page
+   6.3 Add LOGIN_URL = 'login' to the myblogapp\settings.py. This will tell Django where to look for profile page. (Don't
+   why url patterns can't resolve this??)
+
+
+Setting up User Profile and Picture
+===================================
+
+1. Extend users\models.py by importing the following-
+   1.1 from django.contrib.auth.models import User
+   1.2 Define Profile class
+   1.3 Set one to one relation so that one profile corresponds to one user
+2. From the projects folder (i.e. myblogapp where manage.py exists)-
+   2.1 pip install pillow (Python's image handling library)
+   2.2 python manage.py makemigrations
+   2.3 python manage.py migrate
+3. In order to view Profile on the admin page we need to register Profile in users\admin.py
+4. We can now add profiles for users from our admin page.
+5. Investigation of user profile from Django shell-
+   5.1 Stop the server
+   5.2 python manage.py shell
+   >>> from django.contrib.auth.models import User
+   >>> user = User.objects.filter(username='anild').first()
+   >>> user
+   >>> user.profile
+   >>> user.profile.image
+   >>> user.profile.image.width
+   >>> user.profile.image.url
+   >>>
+   >>>user = User.objects.filter(username='test101').first()
+   >>> user
+   >>> user.profile.image
+   NOTE: profile_pics (whatever has been defined in users\models.py) folder would be automatically created in the
+         project's root folder (i.e. myblogapp folder where manage.py exists)
+6. However, the above path for the profile picture is not a good location as multiple models would clutter up the project
+   root directory with different images directories. To fix the issue-
+   6.1 Add the following two variables to the myblogapp\settings.py file-
+       MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # This will add full path. The images are stored in the file system
+                                                     # not in the database. BASE_DIR is a Django created variable for
+                                                     # our project path. 'media' folder would be joined with BASE_DIR
+       MEDIA_URL = '/media/' # This is the public URL for our 'media' which will be accessed from a browser.
+   6.2 In order to access the new media path we first need to delete the existing profiles from admin page
+   6.3 Recreate the new profiles. A new folder for profile pictures would be created from the project's base directory
+       i.e. myblogapp\media\profile_pics
+   6.3 We can safely delete old profile_pics folder
+7. Amend profile.html
+8. Add the following to the myblogapp\urls.py. THIS WOULD CHANGE FOR PRODUCTION ENV-
+   8.1 from django.conf import settings
+   8.2 from django.conf.urls.static import static
+   8.3 if settings.DEBUG:
+         urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+9. To automatically  add profile (with default image) at the time of SIGN UP after successful registration. Currently,
+   profile can be  setup from admin page. This is  very easy by using Django Signal-
+   9.1 Create a new file signals.py under the users app.
+   NOTE: Some people may not create signals.py instead define create_profile and save_profile methods in the
+         users\models.py.
+         However, this is not recommended by Django documentation. Therefore, it is a good practice to create a separate
+         file i.e. signals.py.This signal will get fired after an object is saved. We want to get a post_save signal
+         when a new user is created. User model in this case is the sender of the signal. We also need to define the
+         receiver signal. A receiver signal is function that gets this signal and then performs some task.
+   9.2. Define ready method in the users\app.py (under the users app)
+
+Updating User profile
+=====================
+
+1. Create a model form in users\forms.py. Model forms allow us to work with a specific database model.
+2. Import profile model to update profile picture-
+   "from .models import Profile"
+2. Now create two model forms UserUpdateForm and ProfileUpdateForm. Although they have been created a separate classes
+   but would be shown together in the browser (i.e. views.py)
+3. Now import UserUpdateForm, ProfileUpdateForm in users\views.py
+4. Extend "update functionality" to the profile function method in the users\views.py
+5. Include update snippet to the users\profile.html
+6. Now login and test updates for username, email and profile picture
+7. After updating profile cross-check updated info for the user in the admin panel
+8. Image Resizing (Amend users\models.py)-
+   8.1 from PIP import Image
+   8.2 Override  image size by defining a new method (def save(self) in this case)
+9. Add this stage, we can now add author's image alongside his respective Blog post.
+   9.1 Add the following HTML code to blog\home.html -
+       " <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">"
+
+LIST POST, LIST INDIVIDUAL POST, CREATE. UPDATE, & DELETE Blogs
+================================================================
+
+To achieve this we will use class based views. So far, we have used function based view like "def home(request)".
+Class based view have lot more functionality that will handle lot more back-end logic. There are a lot of class based
+views like list views, detail views, create views, update views, delete views, and much more.
+
+1. List All posts in home page
+   1.1 Amend blog\views.py "from django.views.generic import ListView"
+   1.2 Define
+       class PostListView(ListView):
+         model = Post
+        template_name = 'blog/home.html'  # <app>/<model>_<viewtype>.html
+        context_object_name = 'posts'  # The default context_object_name is is object_list. Overriding  with 'posts'
+        ordering = ['-date_posted']  # 'date_posted' would list from oldest to newest. - would change the order
+        paginate_by = 5
+       NOTE: template_name and context_object_name variables  are not required if we had used the Django defaults.
+    1.3. Amend path('', PostListView.as_view(), name='blog-home'), in blog\urls.py
+        The url will now look for PostListView on blog/home.html as that template has been passed to the view.
+
+2. View Individual posts
+   2.1 from django.views.generic import DetailView
+   2.2 Define
+       class PostDetailView(DetailView):
+            model = Post
+   NOTE: Using Django default variable name. Notice the difference in blog\post_detail.html where we are referring
+         variables as object such as object.author.username etc.
+   2.3 Amend path('post/<int:pk>/', PostDetailView.as_view(), name='post-detail'), in blog\urls.py
+   4.2 Create new html called post_detail.html as Django naming convention <app>/<model>_<viewtype>.html
+       i.e. blog/post_detail.html
+3. Amend blog/home.html so that when a uses clicks a title it takes to individual post.
+
+4. Create a new Post
+   4.1 from django.views.generic import CreateView
+   4.2 Define
+       class PostCreateView(LoginRequiredMixin, CreateView):
+         model = Post
+         fields = ['title', 'content']  # Pass the fields that are needed to create a new post
+
+         def form_valid(self, form):
+            form.instance.author = self.request.user
+            return super().form_valid(form)
+       NOTE: Class based views don't accept decorators so LoginRequiredMixin would make sure that a user is logged in
+             to create new post
+    4.3 Amend urls.py path('post/new/', PostCreateView.as_view(), name='post-create'),
+    4.4 Create a template called post_form.html.
+        NOTE: This template would be shared with update post view and naming convention is very important. In the
+              create new post and update a post Djano expect the template name as <model>_form.html
+    4.5 Add a method def form_valid(self, form) to  the class PostCreateView to retrieve author.id otherwise Django
+        will fail due to integrity error. This will override default form_valid method which will allow us to add
+        author.id before the form is submitted.
+    4.5 Also need to add a method (def get_absolute_url) to blog\models.py so that user is redirected to the newly
+        created  post page. This has to be return reverse NOT return redirect.
+    4.6 Activate href link for "New Post" in blog/home.html
+
+5. Update a post
+   5.1 Same like CreateView with minor changes.
+   5.2 from django.views.generic import CreateView
+   5.3 Add def test_func(self) to the class PostUpdateView to prevent any user to update other people's post. Works in
+       conjunction with UserPassesTestMixin
+   5.4 set path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),  in blog\urls/py
+   5.5 Django will automatically use post_form.html template. No need to define a separate template.
+
+8. Delete a post
+   8.1. Delete is similar to detail view.
+   8.2 from django.views.generic import DeleteView
+   8.3 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView): in blog\views.py
+   8.4 Add path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'), to blog\urls/py
+   8.5 Create post_confirm_delete.html. This template expects as form to 'Confirm' or 'Cancel'
+   8.6 Add 'success_url = '/' class PostDeleteView (blog\views.py) so that a user is redirected to blog\home page
+       after successful deletion of a post.
+
+9. Add Create, Update, and Delete (posts) links to html pages
+   9.1 Create 'New Post'  to navbar in the blog\base.html (If a user is logged in)
+   9.2 'Update' and 'Delete' links to the blog\post_detail.html
+
+PAGINATION
+==========
+
+Understanding Pagination
+------------------------
+
+1. First Check  user-id's against a username
+
+1. From the terminal run "python manage.py shell"
+>>> from django.contrib.auth.models import User
+>>>users = User.objects.all()
+>>>  for user in users:
+...     user.username, user.id    (NOTE: Don't forget to tab)
+....
+
+NOTE: This will list all  'username' and corresponding 'id' so that we could update our JSON file with correct user.id.
+
+
+2. Next we will add posts to our Post table in sqlite3
+   2.1 Create post.json file in the project directory (where manage.py lives)
+   2.2 From the terminal invoke Django shell-
+       "python manage.py shell"
+        >>> import json
+        >>> from blog.models import Post
+        >>> with open('posts.json') as f:
+        ...  posts_json = json.load(f) [NOTE: execute this after tab]
+        ...
+        >>>for post in posts_json:
+        ...  post = Post(title=post['title'], content=post['content'], author_id=post['user_id'])
+        ...  post.save()
+        ...
+        >>>exit()
+3. pip install paginator
+4. How paginator works?
+   4.1 Start Django shell (python manage.py shell)
+   4.2 from django.core.paginator import Paginator
+   4.3 posts = ['My post 1', 'My post 2', 'My post 3', 'My post 4', 'My post 5']  - Dummy posts
+   4.4 p = Paginator(posts, 2)  - Set 2 posts per page
+   4.5 p.num_pages - Result: 3 since there are total 5 posts and 2 posts per page have been set.
+   4.6 >>> for page in p.page_range:
+        ...     print(page)
+        ...
+        Result: 1, 2, 3 loop over page range
+   4.7  p1 = p.page(1)
+        p1  (Result: <Page 1 of 3>)
+        p1.number (Result: 1)
+        p1.object_list (Result: ['My post 1', 'My post 2'])
+        p1.has_previous() (Result: False)
+        p1.has_next() (Result: True)
+        p1.next_page_number() (Result: 2)
+
+Implementation
+--------------
+
+1. Open blogs\views.py
+2. Since we are using class based function PostListView(ListView), we don't need to import Paginator.
+3. Add "paginate_by = 2 " towards the end to this class (i.e. add pagination to blog/home.html)
+4. #3 will add Pagination functionality but will now give links to next pages. The only was to move to next set of
+   pages can only be done manually like http://127.0.0.1:8000/?page=1, http://127.0.0.1:8000/?page=2 and so one
+5. We will need to add Pagination links logic to blog\home.html after the for loop.
+
+Retrieving user specific posts
+------------------------------
+When user clicks on a username, retrieve posts specific to that username. This view is similar to
+class PostListView(ListView): that was used to retrieve all posts on blog\home.html.
+
+1. Amend views.py
+   1.1 Create another class based function UserPostListView in the blog\views.py
+   1.2 from django.shortcuts import get_object_or_404 in blog\views.py
+   1.3 from django.contrib.auth.models import User in blog\views.py
+   1.4 Import UserPostListView in blog\urls.py
+   1.5 Add def get_queryset(self): to filer username based posts and validate the username object exists
+
+2. Add  path('user/<str:username>', UserPostListView.as_view(), name='user-posts') in the blog\urls.py
+3. Create new template
+   3.1 Create a new html called user_posts.html in blog\templates. This is going to identical to blog\templates/home.html
+   3.2  Just add <h1>Posts by {{ view.kwargs.username}}</h1>
+   3.3 Update <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a> in blog\home.html
+   3.4 Update <a class="mr-2" href="{% url 'user-posts' object.author.username %}">{{ object.author }}</a> in
+    post_detail.html
+
+EMAIL AND PASSWORD RESET
+========================
+
+Django has a built in functionality (through "from django.contrib.auth import views as auth_views") that a generate a
+secure token to ensure that ony a specific user can reset password.
+Sequence to reset the password-
+>Password reset
+>Password reset done
+>Password reset confirm
+>Password reset complete
+
+1. Add for password-reset/, password-reset/done/, password-reset-confirm, and password-reset-complete/ path to
+   urlpatterns list in  myblogapp\urls.py
+2. Create templates under users app:
+   2.1 password_reset.html - Form for filling out email address
+   2.2 password_reset_done.html - Page to inform user than the reset email has been sent
+   2.3 password_reset_confirm.html - Form to confirm reset password. Also, the url expects two parameters
+       [path('password-reset-confirm/<uidb64>/<token>/]
+       NOTE: Adding a layer of security that user is the correct user (uidb64 - User's id encoded in base 64) and
+       a token to check user's password is valid by Django.
+   2.4 password_reset_complete.html -
+   2.4 password_reset_complete.html - Page that informs a user that the password has been completed. Now the user
+                                      can login
+3. Setting up email server using Gmail
+   3.1 https://accounts.google.com/signin/v2/sl/pwd?service=accountsettings&passive=1209600&osid=1&continue=https%3A%2F%2Fmyaccount.google.com%2Fapppasswords&followup=https%3A%2F%2Fmyaccount.google.com%2Fapppasswords&rart=ANgoxcc1-GW6kfm8Wa-LVMiWPO4JpXTAUAR8tk6CGR-KuDjorPmdv34YVh-i-_OezbGl4L-pDWr-3cwDsUOgJRzZB4L9IBDe1Q&authuser=0&csig=AF-SEnZKHKnkj6K1wG_K%3A1565240409&flowName=GlifWebSignIn&flowEntry=ServiceLogin
+   3.2 37kirkwall@gmail.com / ^^^^^^^^^^
+   3.3 Go to security
+   3.4 Since I don't have 2 factor authentication I allowed "Less secure app access"
+   3.5 Create Email settings in myblogapp\settings.py -
+       EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+       EMAIL_HOST = os.environ.get('EMAIL_HOST')
+       EMAIL_PORT = 587
+       EMAIL_USE_TLS = True
+       EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
+       EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+4. In the users\login.html add 'Forgot Password' html
+
+INCLUDE link to Admin page
+==========================
+
+1. Amend blog\base.html
+2. Within the code where a user is being checked as is_authenticated
+    {% if user.is_superuser %}
+                    <a class="nav-item nav-link" href="{% url 'admin:index' %}">Admin</a>
+    {% endif %}
+
+How to add First name and Last name to Registration and Profile?
+================================================================
+
+1. The First name and Last are default fields in UserCreation Form
+2. Amended users\forms.py to include the fields class UserRegisterForm and class UserUpdateForm
+4. Amended def register(request) and def profile(request) in users\views.py
+
+
+Custom Login
+============
+
+1. Redirecting to Login page after logout (instead of default Django logout page)
+2. Modified urlpatterns for logout myblogapp\urls.py
+3. Added the following to users\view.py
+
+   "@login_required()
+    def logout(request):
+    u_form = UserUpdateForm(instance=request.user)
+
+    auth.logout(request)
+    messages.success(request, f'You have been logged out! Do you want to login again?')
+    return redirect('login')"
+4. users\logout.html is no longer required.
+
+Adding Technology and Knowledge center options
+==============================================
+
+1. Store images in myblogapp\media\images folder
+2. Create technology.html and knowledge.html in myblogapp\blog\templates\blog folder
+3. Add them to urlpatterns in myblogapp\blog\urls.py
+4. Add routes in myblogapp\blog\views.py
+5. Loading images in technology.html/knowledge.html on Local Server-
+   5.1 <h5><a href="https://www.python.org/" target="_blank"><img class="img-align" src="/media/images/python.jpg" height="50" alt=""></a> Python 3.7.4</h5>
+   5.2 The media would be accessable based on the following 2 variables in the settings.py -
+        MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+        MEDIA_URL = '/media/'
+
+Adding Django-ckeditor
+======================
+
+1. pip install django-ckeditor
+2. Update myblogapp\settings.py
+   2.1 Add 'ckeditor' to INSTALLED_APPS list
+   2.2 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+       NOTE: This will create static folder under myblogapp folder (where manage.py exists). The myblogapp\static will
+             have there sub-folder admin, blog and ckeditor. The custom css (i.e. main.css) that would be used
+             will is under OLD static folder (i.e. myblogapp\blog\static\blog) can be deleted.
+   2.3 CKEDITOR_JQUERY_URL = os.path.join(STATIC_URL, 'js/jquery.min.js')
+   2.4 CKEDITOR_CONFIGS = {
+          'default': {
+                     # 'toolbar': 'full',
+                     'height': 'auto',
+                     'width': 'auto',
+                      },
+                        }
+
+3. Update blog\models.py
+   3.1 from ckeditor.fields import RichTextField
+   3.2 content = RichTextField() (Class Post)
+
+4. Add    {{ form.media }} to blog\post_form.html
+
+5. Amend myblogapp\blog\blog\home.html post_detail.html & user_posts.html to display in RichText-
+   5.1 <p class="article-content">{{ post.content|safe }}</p>
+   5.2 <p class="article-content"> {{ object.content|safe }}</p>
+   5.3  <p class="article-content">{{ post.content|safe }}</p>
+   NOTE: safe will show the content in RichText
+
+6. python manage.py collectstatic
+   python manage.py makemigrations
+   python manage.py migrate
+
+
+Adding Search Posts & Latest Posts in the Sidebar
+=================================================
+
+1. Import  SearchPostsView / RecentPostsView and then Add  path('search/?', SearchPostsView.as_view(),
+   name='search-posts' and path('Recent/', RecentPostsView.as_view(), name='recent-posts')  to urlpatterns in
+   blog\urls.py
+2. create a new template (search-posts.html and recent_posts.html) to blog\templates
+3. Add a class method  "class SearchPostsView(ListView):" and "class RecentPostsView(ListView):" to blog\views.py
+NOTE: Pagination doesn't working properly
+
+
+Adding Announcements to the Sidebar
+===================================
+
+1. Import  AnnouncementView and then Add   path('announcements/?', AnnouncementView.as_view(),
+   name='blog-announcements'),  to urlpatterns in  blog\urls.py.
+2. create a new template (announcements.html) to blog\templates
+3. Add a class method "AnnouncementView(ListView):" to blog\views.py
+4. Add the following to blog\admin.py-
+   4.1  from .models import Announcement
+   4.2  @admin.register(Announcement)
+        class AnnouncementAdmin(admin.ModelAdmin):
+            list_display = ('body', 'level', 'display')
+5. Rerun migrations
+
+NOTE: Pagination doesn't working properly
+
+
+Weather Report
+==============
+
+1. Created environment (user) variable DEFAULT_CITY in Windows
+2. Set DEFAULT_CITY = os.environ.get('DEFAULT_CITY') in settings.py
+3. Create environment (user) variable OWM_API in Windows (OpenWeatherMap API)
+4. Set OWM_API = os.environ.get('OWP_API') in settings.py
+5. Create "class City(models.Model):" blog\models
+6. Add admin.site.register(City) in blog\admin.py
+7. Create def weather(request): in blog\views.py
+8. define weather.html in blog\templates
+9. Migrate
+
+How to shorten long posts
+=========================
+
+1. truncatechars_html (can use truncatewords_html also) (see blog\home.html and user_posts.html)
+
+NOTE FOR DEPLOYMENT IN HERUKO for main.css and ckeditor
+=======================================================
+
+1. settings.by
+
+    1.1. settings.py -
+        STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+        STATIC_URL = '/static/'
+    1.2. base.html -
+         {% load static %} <-- old {% load static %}
+        <link rel="stylesheet" href="{% static 'blog/main.css' %}">
+    1.3. Renamed myblogapp\blog\static\blog\main.css as main_old.css
+
+2. AWS S3 Bucket -
+    https://www.youtube.com/watch?v=kt3ZtW9MXhw&list=PL-osiE80TeTtoQCKZ03TU5fNfx2UY6U4p&index=16
+
+    2.1 -
+    Email - anil.dhar@live.com
+            userID: anild
+            Password: @^^^^^^^^^!
+
+    S3 Bucket - ad-django-webblogapp
+    User: ad_django_webapp_user
+
+    AWS_STORAGE_BUCKET_NAME = 'ad-django-webblogapp'
+    AWS_ACCESS_KEY_ID = 'AKIAVM2Y7MAPQSIFNM2M'
+    AWS_SECRET_ACCESS_KEY = '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'
+    DEFINE ABOVE THREE IN THE Windows environment (user) variables
+
+    2.2 pip install boto3
+    2.3 pip install django-storages
+    2.4 Modify settings.py -
+        2.4.1  Add 'storages' to INSTALLED_APPS
+        2.4.2 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+              AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+              AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+              AWS_S3_FILE_OVERWRITE = False
+              AWS_DEFAULT_ACL = None
+              DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    2.5. Comment out def save(self, *args, **kwargs): in users\models.py
+
+
+Heroku Migration
+================
+https://www.youtube.com/watch?v=6DI_7Zja8Zc&list=PL-osiE80TeTtoQCKZ03TU5fNfx2UY6U4p&index=17
+Creating SECRET KEY
+
+1. Go to Python shell
+2. Import secrets
+3. secrets.token_hex(24) _ Will generate 24 Byte Secret key
+
+heroku config:set SECRET_KEY=""
+heroku config:set DEBUG_VALUE="False" (DON'T SET THIS VARIABLE IN Heroku i.e. production env)
+
+heroku config:set AWS_ACCESS_KEY_ID=""
+heroku config:set AWS_SECRET_ACCESS_KEY=""
+heroku config:set AWS_STORAGE_BUCKET_NAME=""
+
+heroku config:set EMAIL_HOST=""
+heroku config:set EMAIL_USER=""
+heroku config:set EMAIL_PASS=""
+
+heroku config:set DEFAULT_CITY="Sydney"
+heroku config:set OWM_API=""
+
+Commands
+=========
+1 "heroku login" from Widows command line
+2. "heroku open" to launch website from Git Bash terminal from app root dir
+
+Committing changes (from Git Bash terminal from web root dir)
+
+1.  git status
+2. git add -A
+3. git commit -m
+4. git push heroku master
+
+Running Python from Git Bash
+
+#1. heroku run python manage.py [createsuperuser | migrate etc]
+
+#2. Go to "heroku run bash" and run python straigt
+
+
+Website - https://myawesomeblogapp.herokuapp.com/
+Heroku Dashboard - https://dashboard.heroku.com/apps/myawesomeblogapp/settings
+
+
+Important steps
+===============
+
+1. Create a projects
+2. Create App
+3. Include app in settings.py
+4. Include app urls in projects\urls
+5. Define app\models in admin.py
+6. Create urls.py in the app
+6. Define url dispatcher in app\url
+7. Create super user
+8. Make migrations
+9. Models/forms/views/templates
+
+Forms - Regular, Custom, & Model Forms
+
+
+Max's Django Tutorial
+
+https://www.youtube.com/playlist?list=PLw02n0FEB3E3VSHjyYMcFadtQORvl1Ssj
+#18
+
+
+JustDjango
+==========
+1. How to build a  Django eCommerce website
+   https://www.youtube.com/watch?v=z4USlooVXG0&list=PLLRM7ROnmA9F2vBXypzzplFjcHUaKWWP5
+2. How to build a Django blog website
+   https://www.youtube.com/watch?v=ZY1jPXapmvs&list=PLLRM7ROnmA9G7Sm2MHl-Oy0JW7U9kTxRV
+3. How to build a Chat application using Django channels:
+   https://www.youtube.com/watch?v=Wv5jlmJs2sU&list=PLLRM7ROnmA9EnQmnfTgUzCfzbbnc-oEbZ
+4. Django React:
+   https://www.youtube.com/watch?v=uZgRbnIsgrA&list=PLLRM7ROnmA9FxCtnLoIHAs6hIkJyd1dEx
+5. Django advanced dynamic form:
+   https://www.youtube.com/watch?v=-X1KMCM_uts&list=PLLRM7ROnmA9EGO3TOlWLgrc46EhTgj1Ih
+5. Custom Django:
+   https://www.youtube.com/watch?v=IGE8uhVDd-c&list=PLLRM7ROnmA9GTk309hETb92m_XN7HHiSJ
+2. How to improve admin page?
+   https://www.youtube.com/watch?v=rxai34qeBcc&list=LLrEpoY9Z_bRLRM7Q1Qv-nMA&index=2&t=486s
+
+
+
+
+
+
+
