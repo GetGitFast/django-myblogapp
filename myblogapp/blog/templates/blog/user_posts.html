@@ -1,0 +1,52 @@
+{% extends 'blog/base.html'%}
+{% block content %}
+    <!-- username passed by urls.py -->
+    <h1 class="mb-3">Posts by {{ view.kwargs.username }} ({{ page_obj.paginator.count }})</h1>
+   {% for post in posts %}
+        <article class="media content-section">
+          <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
+          <div class="media-body">
+            <div class="article-metadata">
+              <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
+              <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
+            </div>
+            <h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
+
+            {% if post.content|length > 400%}
+              <p class="article-content">{{ post.content|truncatechars_html:400|safe }}</p>
+              <a class="btn btn-outline-info btn-sm" role="button" href="{% url 'post-detail' post.id %}">Read more</a>
+            {% else %}
+              <p class="article-content">{{ post.content|safe }}</p>
+            {% endif %}
+
+          </div>
+        </article>
+    {% endfor %}
+
+    <!-- Pagination logic. The parameters/fields have been passed  by paginate_by = 5 (from blog\views.py) -->
+     {% if is_paginated %}
+
+      <!--  if current page has previous page then show links to First page and Previous page -->
+      {% if page_obj.has_previous %}
+        <a class="btn btn-outline-info mb-4" href="?page=1">First</a>
+        <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+      {% endif %}
+
+      <!--  if current page is in the middle, loop over the range. Show links previous (2 or less) pages,  -->
+      <!-- and next (2 or less) -->
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+          <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+      <!--  if current page has next page the show links to Next page and Last page -->
+      {% if page_obj.has_next %}
+        <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
+        <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+      {% endif %}
+
+    {% endif %}
+
+{% endblock content %}

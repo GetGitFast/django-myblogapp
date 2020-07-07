@@ -1,0 +1,12 @@
+.git/
+.idea/
+./media_bkup/
+./myblogapp/venv/
+./myblogapp/__pycache__
+./myblogapp/blog/__pycache__
+./myblogapp/myblogapp/__pycache__
+./myblogapp/users/__pycache__
+./myblogapp/db.sqlite3
+./myblogapp/test.py
+./myblogapp/posts.json
+./myblogapp/media/
